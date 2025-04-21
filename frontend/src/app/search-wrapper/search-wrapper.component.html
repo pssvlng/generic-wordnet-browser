@@ -1,0 +1,8 @@
+<div>
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+        <input formControlName="searchText" [placeholder]="placeholder">
+        <button type="submit">{{ searchButtonText }}</button>
+    </form>
+</div>
+
+<app-search></app-search>

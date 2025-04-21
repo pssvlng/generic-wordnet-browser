@@ -1,0 +1,19 @@
+version: "2"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    networks:
+      - my-net  
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "5000:5000"
+    networks:
+      - my-net
+
+networks:
+  my-net:

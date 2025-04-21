@@ -1,0 +1,193 @@
+<h2>
+    <span *ngIf="inputHistory.length > 0">
+        <a (click)="back()">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+        </a>
+    </span>
+    {{title}}
+    <span *ngIf="hasNounOrVerb(words) && words.length > 1">
+        <a [title]="getWordLangTranslation('SEARCH.RESULTS_DIAGRAM', 'en')"
+            (click)="inputHistory.length > 0  ? showImage(words) : showImage(words, inputParams.woi)">
+            <mat-icon>account_tree</mat-icon>
+        </a>
+    </span>
+</h2>
+
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<app-image-popup #popup></app-image-popup>
+<div *ngIf="totalPages > 1" class="pagination-controls">
+    <span>
+        <a (click)="previousPage()" [class.disabled]="currentPage === 1" aria-label="Previous Page">
+            <mat-icon>chevron_left</mat-icon>
+        </a>
+    </span>
+    <ng-container *ngFor="let page of getPageNumbers()">
+        <span>
+            <a (click)="goToPage(page)" [class.active]="page === currentPage">
+                {{ page }}
+            </a>
+        </span>
+    </ng-container>
+    <span>
+        <a (click)="nextPage()" [class.disabled]="currentPage === totalPages" aria-label="Next Page">
+            <mat-icon>chevron_right</mat-icon>
+        </a>
+    </span>
+</div>
+<div *ngIf="!loading" class="search-results">
+    <mat-accordion>
+        <mat-expansion-panel *ngFor="let word of paginatedWords; first as isFirst" [expanded]="isFirst">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <span [class]="langIconClassLookup[word.lang] || ''">
+                        <ng-container *ngIf="!langIconClassLookup[word.lang]">
+                            <strong>{{word.lang}}</strong>
+                        </ng-container>
+                    </span>
+                    <span class="span-padding">{{ word.name }} ({{ getWordLangTranslation('SEARCH.' +
+                        word.pos.toUpperCase(), word.lang) }})</span>
+                    <span>
+                        <a [title]="getWordLangTranslation('SEARCH.PLAY_AUDIO', word.lang)"
+                            (click)="playAudio(word.name, word.lang); $event.stopPropagation()">
+                            <mat-icon>volume_up</mat-icon>
+                        </a>
+                    </span>
+                </mat-panel-title>
+                <mat-panel-description [title]="word.definition">
+                    {{ word.definition.substring(0, 120) }} ...
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <!-- Synonyms -->
+            <p *ngIf="word.synonyms.length > 0">
+                <strong>{{ getWordLangTranslation('SEARCH.SYNONYMS', word.lang) }}: </strong>
+                <ng-container *ngFor="let item of word.synonyms; let last = last">
+                    <a (click)="getWords(word, 'synonym', item)">{{ item }}</a><span *ngIf="!last">, </span>
+                </ng-container>
+            </p>
+
+            <!-- Example Sentence -->
+            <p *ngIf="word.example">
+                <strong>{{ getWordLangTranslation('SEARCH.EXAMPLE', word.lang) }}: </strong>{{ word.example }}
+            </p>
+
+            <!-- Translations -->
+            <ul>
+                <li *ngFor="let lang of getOtherLangs(word)">
+                    <span [class]="langIconClassLookup[lang] || ''">
+                        <ng-container *ngIf="!langIconClassLookup[lang]">
+                            <strong>{{lang}}</strong>
+                        </ng-container>
+                    </span>                    
+                    <span class="span-padding">
+                        <ng-container *ngFor="let translation of getLangItems(word, lang); let i = index">
+                            <a (click)="getTranslation(word, lang, translation)">
+                                {{ translation }}<span *ngIf="i < getLangItems(word, lang).length - 1">, </span>
+                            </a>
+                        </ng-container>
+                    </span>
+                </li>
+            </ul>
+
+            <!-- Diagram -->
+            <span *ngIf="hasNounOrVerb([word])">
+                <a [title]="getWordLangTranslation('SEARCH.DIAGRAM', word.lang)" (click)="showImage([word], word.name)">
+                    <mat-icon>account_tree</mat-icon>
+                </a>
+            </span>
+
+            <!-- LOD View -->
+            <span *ngIf="hasLodViews(word)">
+                <a [title]="getWordLangTranslation('SEARCH.LOD_VIEW', word.lang)" (click)="openLodViews(word.lodViews[word.name])">
+                    <mat-icon>share</mat-icon>
+                </a>
+            </span>
+
+            <!-- Linguistic Counters -->
+            <ng-container *ngFor="let counter of [
+                { type: 'hypernym', icon: 'border_top', title: 'SEARCH.HYPERNYMS' },
+                { type: 'hyponym', icon: 'border_bottom', title: 'SEARCH.HYPONYMS' },
+                { type: 'holonym', icon: 'border_left', title: 'SEARCH.HOLONYMS' },
+                { type: 'meronym', icon: 'border_right', title: 'SEARCH.MERONYMS' },
+                { type: 'antonym', icon: 'compare_arrows', title: 'SEARCH.ANTONYMS' },
+                { type: 'entailment', icon: 'arrow_forward', title: 'SEARCH.ENTAILMENTS' }
+            ]">
+                <ng-container *ngIf="word.linguisticCounter[counter.type] > 0">
+                    <a [title]="getWordLangTranslation(counter.title, word.lang)"
+                        (click)="getWords(word, counter.type)">
+                        <mat-icon>{{ counter.icon }}</mat-icon>
+                    </a>
+                </ng-container>
+            </ng-container>
+
+            <!-- Related Words -->
+            <div class="bordered-container">
+                <mat-accordion>
+                    <mat-expansion-panel class="no-bevel" (opened)="getRelatedWords(word)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>{{ getWordLangTranslation('SEARCH.RELATED_WORDS', word.lang)
+                                }}</mat-panel-title>
+                            <mat-panel-description>{{ getWordLangTranslation('SEARCH.RELATED_WORDS_DESC', word.lang)
+                                }}</mat-panel-description>
+                        </mat-expansion-panel-header>
+
+                        <div *ngIf="word.relatedSynsets.length > 0; else elseLoadingTemplate">
+                            <table>
+                                <tbody>
+                                    <tr *ngFor="let relatedWord of word.relatedSynsets">
+                                        <td>{{ [relatedWord.name].concat(relatedWord.synonyms).join(', ') }}</td>
+                                        <td>{{ getWordLangTranslation('SEARCH.' + relatedWord.pos.toUpperCase(), relatedWord.lang) }}</td>
+                                        <td>{{ relatedWord.definition }}</td>
+                                        <td>
+                                            <a [title]="getWordLangTranslation('SEARCH.VIEW_DETAILS', word.lang)"
+                                                (click)="displayRelatedWords(word, [relatedWord])">
+                                                <mat-icon>arrow_forward</mat-icon>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <span *ngIf="hasNounOrVerb(word.relatedSynsets)">
+                                <a [title]="getWordLangTranslation('SEARCH.DIAGRAM', word.lang)"
+                                    (click)="showImage([word].concat(word.relatedSynsets))">
+                                    <mat-icon>account_tree</mat-icon>
+                                </a>
+                            </span>
+                            <span>
+                                <a [title]="getWordLangTranslation('SEARCH.VIEW_ALL', word.lang)"
+                                    (click)="displayRelatedWords(word, word.relatedSynsets)">
+                                    <mat-icon>arrow_forward</mat-icon>
+                                </a>
+                            </span>
+                        </div>
+                        <ng-template #elseLoadingTemplate>
+                            {{ getWordLangTranslation('SEARCH.LOADING', word.lang) }}
+                        </ng-template>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+    <br />
+    <div *ngIf="totalPages > 1" class="pagination-controls">
+        <span>
+            <a (click)="previousPage()" [class.disabled]="currentPage === 1" aria-label="Previous Page">
+                <mat-icon>chevron_left</mat-icon>
+            </a>
+        </span>
+        <ng-container *ngFor="let page of getPageNumbers()">
+            <span>
+                <a (click)="goToPage(page)" [class.active]="page === currentPage">
+                    {{ page }}
+                </a>
+            </span>
+        </ng-container>
+        <span>
+            <a (click)="nextPage()" [class.disabled]="currentPage === totalPages" aria-label="Next Page">
+                <mat-icon>chevron_right</mat-icon>
+            </a>
+        </span>
+    </div>
+</div>
+
+<div *ngIf="words.length === 0 && inputParams && !loading">{{ getWordLangTranslation('SEARCH.NO_RESULTS', 'en') }}</div>

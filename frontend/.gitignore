@@ -1,0 +1,7 @@
+.DS_STORE
+
+/dist/
+.angular
+.vscode
+npm-debug.log
+/node_modules/

@@ -1,0 +1,77 @@
+<div class="overlay" *ngIf="isVisible" (click)="close()">
+    <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+    <table>
+        <tr>
+            <td>
+                <div class="popup" (click)="$event.stopPropagation()">                    
+                    <img [src]="imageUrl" alt="Popup Image" />
+                </div>
+                <button class="close-button" (click)="close()">X</button>
+            </td>
+            <td>
+                <table class="popup" (click)="$event.stopPropagation()">
+                    <tr>
+                        <td><strong>Synonyms</strong></td>
+                        <td>
+                            <span>
+                                <a title="more" (click)="addSynonyms(1)">
+                                    <mat-icon>add_circle</mat-icon>
+                                </a>
+                            </span>
+                            <span>
+                                <a title="less" (click)="addSynonyms(-1)">
+                                    <mat-icon>remove_circle</mat-icon>
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hierarchies</strong></td>
+                        <td>
+                            <span>
+                                <a title="more" (click)="addLevel(1)">
+                                    <mat-icon>add_circle</mat-icon>
+                                </a>
+                            </span>
+                            <span>
+                                <a title="less" (click)="addLevel(-1)">
+                                    <mat-icon>remove_circle</mat-icon>
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Leaf Nodes</strong></td>
+                        <td>
+                            <span>
+                                <a title="more" (click)="addMaxLeafNodes(1)">
+                                    <mat-icon>add_circle</mat-icon>
+                                </a>
+                            </span>
+                            <span>
+                                <a title="less" (click)="addMaxLeafNodes(-1)">
+                                    <mat-icon>remove_circle</mat-icon>
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Languages</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div *ngFor="let item of items; trackBy: trackById">
+                                <mat-checkbox
+                                    [ngModel]="imageParams.filterLangs.includes(item.id)"
+                                    (change)="toggleSelection(item.id, $event)">
+                                    {{ item.label }}
+                                </mat-checkbox>
+                            </div>
+                        </td>
+                    </tr>                    
+                </table>
+                
+            </td>
+        </tr>
+    </table>
+</div>

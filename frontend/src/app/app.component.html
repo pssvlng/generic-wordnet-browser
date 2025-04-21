@@ -1,0 +1,41 @@
+<div class="header">
+    <h1>{{title}}</h1>
+    <div class="hamburger-menu right-aligned" (document:click)="onOutsideClick($event)">
+        <button mat-icon-button (click)="toggleMenu()" class="menu-button">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <div *ngIf="menuOpen" class="menu-content floating-menu">            
+            <mat-checkbox 
+                [ngModel]="allSelected" 
+                (change)="toggleSelectAll($event)">
+                <strong>Select All</strong>
+            </mat-checkbox>
+            <div *ngFor="let item of items; trackBy: trackById">
+                <mat-checkbox 
+                    [ngModel]="availableLangs.includes(item.id)" 
+                    (change)="toggleSelection(item.id, $event)">
+                    {{ item.label ? item.label : item.id }}                    
+                </mat-checkbox>                
+            </div>                  
+            <div class="button-center">
+                <button mat-button (click)="toggleMenu()">Close</button>
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
+
+<br />
+<div class="flag-container">
+    <span *ngFor="let flag of flagList" class="fi" [ngClass]="langIconClassLookup[flag] ? langIconClassLookup[flag] : ''">
+        <ng-container *ngIf="!langIconClassLookup[flag]">
+            <strong>{{flag}}</strong>
+        </ng-container>
+    </span>    
+</div>
+
+<nav>
+  
+</nav>
+<router-outlet></router-outlet>

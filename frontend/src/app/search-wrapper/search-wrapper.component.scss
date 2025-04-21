@@ -1,0 +1,24 @@
+// ...existing code...
+
+.hamburger-menu {
+    position: fixed; // Change to fixed to ensure it's relative to the viewport
+    top: 0;
+    right: 0;
+    z-index: 1000;
+
+    .menu-button {
+        margin: 10px;
+    }
+
+    .menu-content {
+        position: absolute;
+        top: 50px;
+        right: 10px;
+        background: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        padding: 10px;
+    }
+}
+
+// ...existing code...

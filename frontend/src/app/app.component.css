@@ -1,0 +1,78 @@
+/* AppComponent's private CSS styles */
+
+body {
+  margin: 0; /* Remove default body margin */
+}
+
+h1 {
+  margin-bottom: 0;
+  /*text-align: center;*/
+}
+
+nav a {
+  padding: 1rem;
+  text-decoration: none;
+  margin-top: 10px;
+  display: inline-block;
+  background-color: #e8e8e8;
+  color: #3d3d3d;
+  border-radius: 4px;
+}
+
+nav a:hover {
+  color: white;
+  background-color: #42545C;
+}
+
+nav a.active {
+  background-color: black;
+}
+
+nav {
+  text-align: center;
+}
+
+.flag-container {
+  display: flex;                     /* Use flexbox for layout */
+  justify-content: flex-start;       /* Left justify the flags */
+  padding: 0;                        /* Remove any padding */
+  margin: 0;                         /* Remove any margin */
+}
+
+.flag-container .fi {                /* For flag icons */
+  font-size: 20px;                   /* Adjust the size of the flags */
+  margin-left: 10px;                 /* Space between flags */
+}
+
+.flag-container .fi:first-child {
+  margin-left: 0;                    /* Ensure no margin for the first flag */
+}
+
+mat-checkbox {
+    margin-right: 8px;
+}
+
+.hamburger-menu.right-aligned {
+  position: relative;
+}
+
+.hamburger-menu .menu-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+.floating-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.button-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 0px;
+}

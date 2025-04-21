@@ -1,0 +1,15 @@
+{
+  "name": "api.passivlingo.com_language",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "flask run --host=0.0.0.0 --port=5000",
+    "stop": "kill $(lsof -t -i:5000) || true"
+  },
+  "author": "",
+  "license": "ISC"
+}

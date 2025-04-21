@@ -1,0 +1,88 @@
+ input {
+   display: block;
+   width: 100%;
+   padding: .5rem;
+   margin: 1rem 0;
+   box-sizing: border-box;
+ }
+
+ .search-results {
+   display: block;
+   width: 100%;
+   box-sizing: border-box;
+   float: left;
+ }
+
+ img {
+   width: 100%;
+   height: 100%;
+   object-fit: contain;
+ }
+
+ .span-padding {
+  margin-left: 5pt;
+ }
+
+ .span-padding-list {
+  margin-left: 0pt;
+ }
+
+ table {
+  width: 100%;
+  border-collapse: collapse; 
+}
+
+th, td {
+  padding: 8px; 
+  text-align: left; 
+}
+
+.bordered-container {
+  border: 1px solid #000; 
+  border-radius: 0; 
+  padding: 0; 
+  margin: 0; 
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping of elements */
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px; /* Add spacing between elements */
+  padding: 10px; /* Add padding to ensure spacing within the accordion */
+  box-sizing: border-box; /* Ensure padding is included in the width calculation */
+}
+
+.pagination-controls a {
+  text-decoration: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 5px 10px; /* Adjust padding for better spacing */
+  border-radius: 4px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.pagination-controls a.active {
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+}
+
+.pagination-controls a.disabled {
+  color: #ccc;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.pagination-controls a:hover:not(.active):not(.disabled) {
+  text-decoration: underline;
+}
+
+.pagination-controls mat-icon {
+  font-size: 18px;
+  vertical-align: middle;
+}

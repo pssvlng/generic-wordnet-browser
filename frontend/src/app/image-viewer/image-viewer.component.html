@@ -1,0 +1,61 @@
+<h2>Wort-Diagramm</h2>
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<div *ngIf="imageSrc && !loading">
+    <a (click)="imageMaximized = !imageMaximized">
+        <div *ngIf="!imageMaximized">
+            <img class="min-img" [src]="imageSrc" [border]="1">
+        </div>
+        <div *ngIf="imageMaximized">
+            <img class="max-img" [src]="imageSrc" [border]="1">
+        </div>
+    </a>
+    <br />
+    <table>
+        <tr>
+            <td><strong>Hierarchies</strong></td>
+            <td>
+                <span>
+                    <a title="more" (click)="addLevel(1)">
+                        <mat-icon>add_circle</mat-icon>
+                    </a>
+                </span>
+                <span>
+                    <a title="less" (click)="addLevel(-1)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </a>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Leaf Nodes</strong></td>
+            <td>
+                <span>
+                    <a title="more" (click)="addMaxLeafNodes(1)">
+                        <mat-icon>add_circle</mat-icon>
+                    </a>
+                </span>
+                <span>
+                    <a title="less" (click)="addMaxLeafNodes(-1)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </a>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Synonyms</strong></td>
+            <td>
+                <span>
+                    <a title="more" (click)="addSynonyms(1)">
+                        <mat-icon>add_circle</mat-icon>
+                    </a>
+                </span>
+                <span>
+                    <a title="less" (click)="addSynonyms(-1)">
+                        <mat-icon>remove_circle</mat-icon>
+                    </a>
+                </span>
+            </td>
+        </tr>
+    </table>
+
+</div>
