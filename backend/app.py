@@ -85,6 +85,7 @@ def get_related():
         dict_obj = Dictionary()
         param = SearchParam()    
         param.lang = lang
+        param.filterLang = filterLang
         param.wordkey = wordkey
         exclusions.append(ili)
         for category in ['hypernym', 'hyponym', 'holonym', 'meronym', 'entailment', 'antonym']:

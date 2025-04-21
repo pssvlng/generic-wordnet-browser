@@ -6,6 +6,8 @@ RUN mkdir -p /app
 
 WORKDIR /app
 
+ENV NODE_OPTIONS=--max-old-space-size=2048
+
 COPY package.json /app
 
 RUN npm install
