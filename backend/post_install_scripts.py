@@ -15,7 +15,7 @@ EU_DOWNLOAD_URI = 'https://github.com/pssvlng/open-european-wordnets-{type}/raw/
 # Available options for EU_LANGS: ['en', 'de', 'fr', 'es', 'it', 'nl', 'pt']
 # For the application to work, at least 'en' is needed (which can be filtered out in the front-end settings if desired)
 # i.e. EU_LANGS = ['en']
-EU_LANGS = ['en']
+EU_LANGS = ['en', 'de', 'fr', 'es', 'it', 'nl', 'pt']
 
 # Add language codes that are available on the Open Multiliual WordNet Website, e.g. 'ro', 'da', 'sv', etc.
 OMW_LANG = []
