@@ -68,13 +68,19 @@ class CommonHelper:
             if result.lang in ['en', 'de', 'fr', 'es', 'it', 'nl', 'pt', 'af', 'ro', 'ua']:
                 lemmas = [result.name] + result.synonyms
                 for lemma in lemmas:
+                    uris = []
                     if result.lang == 'en':
-                        wiktionary_uri = f"https://en.wiktionary.org/wiki/{lemma}#{WIKTIONARY_POS[result.lang][result.pos]}"
+                        uris.append(f"https://en.wiktionary.org/wiki/{lemma}#{WIKTIONARY_POS[result.lang][result.pos]}".replace(" ", "_"))
                     else:
                         lang = WIKTIONARY_LANG_MAP[result.lang] if result.lang in WIKTIONARY_LANG_MAP else result.lang
-                        wiktionary_uri = f"https://{lang}.wiktionary.org/wiki/{lemma}"
-                    wiktionary_uri = wiktionary_uri.replace(" ", "_")    
-                    lodViews[lemma] = [wiktionary_uri]
+                        uris.append(f"https://{lang}.wiktionary.org/wiki/{lemma}".replace(" ", "_"))
+
+                    if result.lang in ['en', 'fr', 'es', 'it', 'pt', 'nl', 'af', 'ro'] and result.pos[:1].lower() == 'v':
+                        uris.append(f"https://cooljugator.com/{result.lang}/{lemma}")
+                    if result.lang == 'de':
+                        uris.append(f'https://www.verbformen.com/?w={lemma}')                                        
+                                                                                
+                    lodViews[lemma] = uris
             result.lodViews = lodViews
 
         return results
