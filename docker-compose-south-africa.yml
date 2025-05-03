@@ -1,0 +1,21 @@
+version: "2"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend_south_africa  
+    ports:
+      - "8084:80"
+    networks:
+      - my-net4  
+  backend:
+    build:
+      context: ./backend
+    container_name: backend_south_africa  
+    ports:
+      - "5004:5000"
+    networks:
+      - my-net4
+
+networks:
+  my-net4:

@@ -1,0 +1,21 @@
+version: "2"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend_ua  
+    ports:
+      - "8086:80"
+    networks:
+      - my-net6  
+  backend:
+    build:
+      context: ./backend
+    container_name: backend_ua  
+    ports:
+      - "5006:5000"
+    networks:
+      - my-net6
+
+networks:
+  my-net6:

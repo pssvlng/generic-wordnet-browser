@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - my-net1
+      - my-net2
+      - my-net3
+      - my-net4
+      - my-net5
+      - my-net6                        
+
+networks:
+  my-net1:
+  my-net2:
+  my-net3:
+  my-net4:
+  my-net5:
+  my-net6:        

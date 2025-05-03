@@ -1,0 +1,21 @@
+version: "2"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend_af  
+    ports:
+      - "8083:80"
+    networks:
+      - my-net3  
+  backend:
+    build:
+      context: ./backend
+    container_name: backend_af  
+    ports:
+      - "5003:5000"
+    networks:
+      - my-net3
+
+networks:
+  my-net3:
