@@ -1,21 +1,19 @@
 version: "2"
 services:
-  frontend:
+  frontend_eu:
     build:
-      context: ./frontend
-    container_name: frontend_eu  
+      context: ./frontend      
     ports:
       - "8081:80"
     networks:
-      - my-net1  
-  backend:
+      - my-net-eu  
+  backend_eu:
     build:
-      context: ./backend
-    container_name: backend_eu  
+      context: ./backend    
     ports:
       - "5001:5000"
     networks:
-      - my-net1
+      - my-net-eu
 
 networks:
-  my-net1:
+  my-net-eu:

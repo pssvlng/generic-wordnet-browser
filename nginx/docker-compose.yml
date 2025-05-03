@@ -9,17 +9,17 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
-      - my-net1
-      - my-net2
-      - my-net3
-      - my-net4
-      - my-net5
-      - my-net6                        
+      - my-net-af
+      - my-net-de
+      - my-net-en
+      - my-net-eu
+      - my-net-south-africa
+      - my-net-ua                        
 
 networks:
-  my-net1:
-  my-net2:
-  my-net3:
-  my-net4:
-  my-net5:
-  my-net6:        
+  my-net-af:
+  my-net-de:
+  my-net-en:
+  my-net-eu:
+  my-net-south-africa:
+  my-net-ua:        
