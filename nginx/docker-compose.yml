@@ -9,17 +9,17 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
-      - my-net-af
-      - my-net-de
-      - my-net-en
-      - my-net-eu
-      - my-net-south-africa
-      - my-net-ua                        
+      - generic-wordnet-browser_my-net-af
+      - generic-wordnet-browser_my-net-de
+      - generic-wordnet-browser_my-net-en
+      - generic-wordnet-browser_my-net-eu
+      - generic-wordnet-browser_my-net-south-africa
+      - generic-wordnet-browser_my-net-ua                        
 
 networks:
-  my-net-af:
-  my-net-de:
-  my-net-en:
-  my-net-eu:
-  my-net-south-africa:
-  my-net-ua:        
+  generic-wordnet-browser_my-net-af:
+  generic-wordnet-browser_my-net-de:
+  generic-wordnet-browser_my-net-en:
+  generic-wordnet-browser_my-net-eu:
+  generic-wordnet-browser_my-net-south-africa:
+  generic-wordnet-browser_my-net-ua:        
