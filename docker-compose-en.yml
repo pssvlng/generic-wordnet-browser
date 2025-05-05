@@ -12,6 +12,6 @@ services:
       context: ./backend
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend_en.rule=PathPrefix(`/api/dict`) && Headers(`X-Lang`, `en`)
+      - traefik.http.routers.backend_en.rule=PathPrefix(`/api/dict`) && Header(`X-Lang`, `en`)
       - traefik.http.services.backend_en.loadbalancer.server.port=5000      
  

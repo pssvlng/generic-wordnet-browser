@@ -12,6 +12,6 @@ services:
       context: ./backend
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend_south_africa.rule=PathPrefix(`/api/dict`) && Headers(`X-Lang`, `south-africa`)
+      - traefik.http.routers.backend_south_africa.rule=PathPrefix(`/api/dict`) && Header(`X-Lang`, `south-africa`)
       - traefik.http.services.backend_south_africa.loadbalancer.server.port=5000      
  
