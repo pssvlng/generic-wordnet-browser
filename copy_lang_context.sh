@@ -15,8 +15,8 @@ DESTINATION="frontend/src/app/config/app-config.ts"
 cp "$FILE_TO_COPY" "$DESTINATION"
 echo "Copied '$FILE_TO_COPY' to '$DESTINATION'"
 
-PORT_NUMBER = $2
-FILE = "frontend/src/app/services/wordnet.service.ts"
+PORT_NUMBER=$2
+FILE="frontend/src/app/services/wordnet.service.ts"
 sed -i "s/127.0.0.1:5000/127.0.0.1:${PORT_NUMBER}/" "$FILE"
 
 echo "Port Number changed to '${PORT_NUMBER}' in '${FILE}'."
