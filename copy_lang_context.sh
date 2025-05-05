@@ -16,16 +16,14 @@ DESTINATION="frontend/src/app/config/app-config.ts"
 cp "$FILE_TO_COPY" "$DESTINATION"
 echo "Copied '$FILE_TO_COPY' to '$DESTINATION'"
 
-echo "Port Number changed to '${PORT_NUMBER}' in '${FILE}'."
-
 if [ "$1" = "eu" ]; then
     BASE_URL="/wordnet/"
 else
-    BASE_URL="/wordnet-${$1}/"
+    BASE_URL="/wordnet-$1/"
 fi
 FILE="frontend/angular.json"
 sed -i "s|\"baseHref\": \"/\"|\"baseHref\": \"$BASE_URL\"|" "$FILE"
 
-echo "Proxy Path '${$BASE_URL}' set for '${$1}'."
+echo "Proxy Path '$BASE_URL' set for '$1'."
 
 exit 0
