@@ -2,14 +2,14 @@ version: "2"
 services:
   frontend_de:
     build:
-      context: ./frontend    
+      context: ./frontend
     ports:
-      - "8085:8085"
+      - "8085:80"
     networks:
-      - my-net  
+      - my-net
   backend_de:
     build:
-      context: ./backend    
+      context: ./backend
     ports:
       - "5005:5005"
     networks:
@@ -17,6 +17,6 @@ services:
 
 networks:
   my-net:
-    driver: bridge 
+    driver: bridge
     name: my-net
-    external: true    
+    external: true   

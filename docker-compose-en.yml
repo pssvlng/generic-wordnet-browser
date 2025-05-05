@@ -4,7 +4,7 @@ services:
     build:
       context: ./frontend    
     ports:
-      - "8082:8082"
+      - "8082:80"
     networks:
       - my-net
   backend_en:
@@ -19,4 +19,4 @@ networks:
   my-net:
     driver: bridge 
     name: my-net
-    external: true    
+    external: true

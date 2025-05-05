@@ -2,11 +2,11 @@ version: "2"
 services:
   frontend_af:
     build:
-      context: ./frontend    
+      context: ./frontend
     ports:
-      - "8083:8083"
+      - "8083:80"
     networks:
-      - my-net  
+      - my-net
   backend_af:
     build:
       context: ./backend    
@@ -19,4 +19,4 @@ networks:
   my-net:
     driver: bridge 
     name: my-net
-    external: true    
+    external: true

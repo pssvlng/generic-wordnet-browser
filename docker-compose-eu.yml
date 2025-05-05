@@ -2,14 +2,14 @@ version: "2"
 services:
   frontend_eu:
     build:
-      context: ./frontend      
+      context: ./frontend
     ports:
-      - "8081:8081"
+      - "8081:80"
     networks:
-      - my-net 
+      - my-net
   backend_eu:
     build:
-      context: ./backend    
+      context: ./backend
     ports:
       - "5001:5001"
     networks:
@@ -17,6 +17,6 @@ services:
 
 networks:
   my-net:
-    driver: bridge 
+    driver: bridge
     name: my-net
     external: true
