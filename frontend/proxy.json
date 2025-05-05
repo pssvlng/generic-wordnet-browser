@@ -1,0 +1,11 @@
+{
+    "/api/dict": {
+      "target": "http://127.0.0.1:5000/api/dict",
+      "secure": false,
+      "changeOrigin": true,
+      "logLevel": "debug",
+      "pathRewrite": {
+        "^/api/dict": ""
+      }
+    }
+  }

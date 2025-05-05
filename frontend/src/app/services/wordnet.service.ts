@@ -4,7 +4,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap, timeout } from 'rxjs/operators';
-import { dockerLang } from '../config/app-config';
+import { AppConfig } from '../config/app-config';
 import { ExampleSentenceResponse } from '../models/example-sentence-response';
 import { ImageInputParams } from '../models/image-input-params';
 import { InputParams } from '../models/input-params';
@@ -25,7 +25,7 @@ export class WordnetService {
       'Access-Control-Allow-Credentials': 'true',
       "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
       'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
-      'X-Lang': dockerLang
+      'X-Lang': AppConfig.dockerLang
     })
   };
 

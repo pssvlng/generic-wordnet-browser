@@ -1,7 +1,5 @@
 #!/bin/bash
 #param1: language code (e.g., en, de, es)
-#param2: port number (e.g., 5000, 5001, etc.)
-
 
 FILE_TO_COPY="docker-compose-$1.yml"
 DESTINATION="docker-compose.yml"
@@ -18,20 +16,16 @@ DESTINATION="frontend/src/app/config/app-config.ts"
 cp "$FILE_TO_COPY" "$DESTINATION"
 echo "Copied '$FILE_TO_COPY' to '$DESTINATION'"
 
-PORT_NUMBER=$2
-FILE="frontend/src/app/services/wordnet.service.ts"
-sed -i "s/127.0.0.1:5000/127.0.0.1:${PORT_NUMBER}/" "$FILE"
-
 echo "Port Number changed to '${PORT_NUMBER}' in '${FILE}'."
 
 if [ "$1" = "eu" ]; then
-    PROXY_PATH="/wordnet/"
+    BASE_URL="/wordnet/"
 else
-    PROXY_PATH="/wordnet-${$1}/"
+    BASE_URL="/wordnet-${$1}/"
 fi
 FILE="frontend/angular.json"
-sed -i "s|\"baseHref\": \"/\"|\"baseHref\": \"$PROXY_PATH\"|" "$FILE"
+sed -i "s|\"baseHref\": \"/\"|\"baseHref\": \"$BASE_URL\"|" "$FILE"
 
-echo "Proxy Path '${$PROXY_PATH}' set for '${$1}'."
+echo "Proxy Path '${$BASE_URL}' set for '${$1}'."
 
 exit 0

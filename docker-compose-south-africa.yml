@@ -1,22 +1,17 @@
-version: "2"
 services:
-  frontend_south_africa:
+  frontend_af:
     build:
       context: ./frontend
-    ports:
-      - "8084:80"
-    networks:
-      - my-net
-  backend_south_africa:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend_south_africa.rule=PathPrefix(`/wordnet-south-africa`)
+      - traefik.http.services.frontend_south_africa.loadbalancer.server.port=80
+ 
+  backend_af:
     build:
-      context: ./backend   
-    ports:
-      - "5004:5004"
-    networks:
-      - my-net
-
-networks:
-  my-net:
-    driver: bridge
-    name: my-net
-    external: true  
+      context: ./backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend_south_africa.rule=PathPrefix(`/api/dict`) && Headers(`X-Lang`, `south-africa`)
+      - traefik.http.services.backend_south_africa.loadbalancer.server.port=5000      
+ 
