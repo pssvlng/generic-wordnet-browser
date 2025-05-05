@@ -30,7 +30,8 @@
               "src/styles.css",
               "node_modules/flag-icons/css/flag-icons.min.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "baseHref": "/"
           },
           "configurations": {
             "production": {
