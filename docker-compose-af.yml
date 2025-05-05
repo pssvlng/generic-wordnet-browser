@@ -1,22 +1,28 @@
-version: "2"
 services:
+  traefik:
+    image: traefik:v3.3
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+ 
   frontend_af:
     build:
       context: ./frontend
-    ports:
-      - "8083:80"
-    networks:
-      - my-net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend_af.rule=PathPrefix(`/wordnet-af`)
+      - traefik.http.services.frontend_af.loadbalancer.server.port=80
+ 
   backend_af:
     build:
-      context: ./backend    
-    ports:
-      - "5003:5003"
-    networks:
-      - my-net
-
-networks:
-  my-net:
-    driver: bridge 
-    name: my-net
-    external: true
+      context: ./backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend_af.rule=PathPrefix(`/api/dict`) && Headers(`X-Lang`, `af`)
+      - traefik.http.services.backend_af.loadbalancer.server.port=5000      
+ 

@@ -4,18 +4,18 @@ import { ToastrService } from 'ngx-toastr';
 
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap, timeout } from 'rxjs/operators';
+import { dockerLang } from '../config/app-config';
 import { ExampleSentenceResponse } from '../models/example-sentence-response';
 import { ImageInputParams } from '../models/image-input-params';
 import { InputParams } from '../models/input-params';
 import { Word } from '../models/word';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class WordnetService {
 
-  private readonly wordnet_url = 'http://127.0.0.1:5000/api/dict/'; 
+  private readonly wordnet_url = '/api/dict/'; 
   private readonly sense_example_sentence_url = "https://edu.yovisto.com/sparql?default-graph-uri=&query=select+distinct+%3Fsentence+where+%7B%0D%0A%3Fs+a+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23LexicalSense%3E+.%0D%0A%3Fs+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23isLexicalizedSenseOf%3E+%3C__X__%3E+.%0D%0A%3Fs+%3Chttps%3A%2F%2Fglobalwordnet.github.io%2Fschemas%2Fwn%23example%3E+%3Fblank+.%0D%0A%3Fblank+rdf%3Avalue+%3Fsentence+.%0D%0A%3Flexical_entry+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23sense%3E+%3Fs+.%0D%0A%3Flexical_entry+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23canonicalForm%3E+%3Fcanon_form+.%0D%0A%3Fcanon_form+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Flemon%2Fontolex%23writtenRep%3E+%3Fwritten_rep.+%0D%0A%0D%0AFILTER%28REGEX%28STR%28%3Fwritten_rep%29%2C+%22__Y__%22%2C+%22i%22%29%29%0D%0A%7D+%0D%0A%0D%0A&format=application%2Fsparql-results%2Bjson&should-sponge=&timeout=0&signal_void=on";
 
   httpOptions = {
@@ -25,6 +25,7 @@ export class WordnetService {
       'Access-Control-Allow-Credentials': 'true',
       "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
       'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
+      'X-Lang': dockerLang
     })
   };
 

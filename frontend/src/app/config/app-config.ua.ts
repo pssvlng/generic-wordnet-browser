@@ -4,5 +4,6 @@ export const AppConfig = {
     title: 'WordNet: Українсько-англійський словник',
     searchPlaceholders: ['Введіть слово...', 'Type word...'],
     searchButtonText: 'Пошук/Search',  
+    dockerLang: 'ua'
   };
   

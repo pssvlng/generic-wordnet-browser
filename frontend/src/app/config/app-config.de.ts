@@ -4,5 +4,6 @@ export const AppConfig = {
     title: 'WordNet: Deutsch-Englisch Wörterbuch',
     searchPlaceholders: ['Wort eingeben...', 'Type word...'],
     searchButtonText: 'Suchen/Search',  
+    dockerLang: 'de'
   };
   

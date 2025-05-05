@@ -4,4 +4,5 @@ export const AppConfig = {
     title: 'WordNet: European Languages',
     searchPlaceholders: ['word', 'Wort', 'woord', 'mot', 'palabra', 'palavra', 'parola'],
     searchButtonText: 'Search',  
+    dockerLang: 'eu'
   };

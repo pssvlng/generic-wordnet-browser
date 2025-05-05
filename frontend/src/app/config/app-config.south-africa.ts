@@ -7,4 +7,5 @@ export const AppConfig = {
     searchPlaceholders: ['word', 'izwi', 'ilizwi', 'lentsoe', 'rito'],
     //To be added: 'lentšu'
     searchButtonText: 'Search',  
+    dockerLang: 'south-africa'
   };
