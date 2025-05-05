@@ -4,16 +4,19 @@ services:
     build:
       context: ./frontend    
     ports:
-      - "8083:80"
+      - "8083:8083"
     networks:
-      - my-net-af  
+      - my-net  
   backend_af:
     build:
       context: ./backend    
     ports:
-      - "5003:5000"
+      - "5003:5003"
     networks:
-      - my-net-af
+      - my-net
 
 networks:
-  my-net-af:
+  my-net:
+    driver: bridge 
+    name: my-net
+    external: true    

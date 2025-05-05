@@ -4,16 +4,19 @@ services:
     build:
       context: ./frontend      
     ports:
-      - "8081:80"
+      - "8081:8081"
     networks:
-      - my-net-eu  
+      - my-net 
   backend_eu:
     build:
       context: ./backend    
     ports:
-      - "5001:5000"
+      - "5001:5001"
     networks:
-      - my-net-eu
+      - my-net
 
 networks:
-  my-net-eu:
+  my-net:
+    driver: bridge 
+    name: my-net
+    external: true

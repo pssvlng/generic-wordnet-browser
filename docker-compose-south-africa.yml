@@ -4,16 +4,19 @@ services:
     build:
       context: ./frontend    
     ports:
-      - "8084:80"
+      - "8084:8084"
     networks:
-      - my-net-south-africa  
+      - my-net
   backend_south_africa:
     build:
       context: ./backend    
     ports:
-      - "5004:5000"
+      - "5004:5004"
     networks:
-      - my-net-south-africa
+      - my-net
 
 networks:
-  my-net-south-africa:
+  my-net:
+    driver: bridge 
+    name: my-net
+    external: true  
