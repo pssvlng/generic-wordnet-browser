@@ -1,0 +1,18 @@
+#!/bin/bash
+
+FILE_TO_COPY="docker-compose-$1.yml"
+DESTINATION="docker-compose.yml"
+cp "$FILE_TO_COPY" "$DESTINATION"
+echo "Copied '$FILE_TO_COPY' to '$DESTINATION'"
+
+FILE_TO_COPY="backend/post_install_scripts.$1.py"
+DESTINATION="backend/post_install_scripts.py"
+cp "$FILE_TO_COPY" "$DESTINATION"
+echo "Copied '$FILE_TO_COPY' to '$DESTINATION'"
+
+FILE_TO_COPY="frontend/src/app/config/app-config.$1.ts"
+DESTINATION="frontend/src/app/config/app-config.ts"
+cp "$FILE_TO_COPY" "$DESTINATION"
+echo "Copied '$FILE_TO_COPY' to '$DESTINATION'"
+
+exit 0
