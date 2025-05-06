@@ -34,4 +34,11 @@ else
     echo "Network '$NETWORK_NAME' already exists."
 fi
 
+if ! podman network ls | grep -q "$NETWORK_NAME"; then    
+    podman network create "$NETWORK_NAME"
+    echo "Network '$NETWORK_NAME' created."
+else
+    echo "Network '$NETWORK_NAME' already exists."
+fi
+
 exit 0
