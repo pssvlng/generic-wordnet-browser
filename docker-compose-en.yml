@@ -6,6 +6,8 @@ services:
       - traefik.enable=true
       - traefik.http.routers.frontend_en.rule=PathPrefix(`/wordnet-en`)
       - traefik.http.services.frontend_en.loadbalancer.server.port=80
+    networks:
+      - lang-network      
  
   backend_en:
     build:
@@ -14,4 +16,9 @@ services:
       - traefik.enable=true
       - traefik.http.routers.backend_en.rule=PathPrefix(`/api/dict`) && Header(`X-Lang`, `en`)
       - traefik.http.services.backend_en.loadbalancer.server.port=5000      
- 
+    networks:
+      - lang-network      
+
+networks:
+  lang-network:
+    external: true 

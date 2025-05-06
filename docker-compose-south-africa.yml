@@ -6,6 +6,8 @@ services:
       - traefik.enable=true
       - traefik.http.routers.frontend_south_africa.rule=PathPrefix(`/wordnet-south-africa`)
       - traefik.http.services.frontend_south_africa.loadbalancer.server.port=80
+    networks:
+      - lang-network      
  
   backend_south_africa:
     build:
@@ -14,4 +16,9 @@ services:
       - traefik.enable=true
       - traefik.http.routers.backend_south_africa.rule=PathPrefix(`/api/dict`) && Header(`X-Lang`, `south-africa`)
       - traefik.http.services.backend_south_africa.loadbalancer.server.port=5000      
- 
+    networks:
+      - lang-network      
+
+networks:
+  lang-network:
+    external: true 

@@ -26,4 +26,12 @@ sed -i "s|\"baseHref\": \"/\"|\"baseHref\": \"$BASE_URL\"|" "$FILE"
 
 echo "Proxy Path '$BASE_URL' set for '$1'."
 
+NETWORK_NAME="lang-network"
+if ! docker network ls | grep -q "$NETWORK_NAME"; then    
+    docker network create "$NETWORK_NAME"
+    echo "Network '$NETWORK_NAME' created."
+else
+    echo "Network '$NETWORK_NAME' already exists."
+fi
+
 exit 0
