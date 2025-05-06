@@ -1,5 +1,5 @@
 services:
-  frontend_af:
+  frontend_ua:
     build:
       context: ./frontend
     labels:
@@ -7,7 +7,7 @@ services:
       - traefik.http.routers.frontend_ua.rule=PathPrefix(`/wordnet-ua`)
       - traefik.http.services.frontend_ua.loadbalancer.server.port=80
  
-  backend_af:
+  backend_ua:
     build:
       context: ./backend
     labels:
