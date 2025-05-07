@@ -4,10 +4,10 @@ services:
       context: ./frontend
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend_eu.rule=PathPrefix(`/wordnet-eu`)
+      - traefik.http.routers.frontend_eu.rule=PathPrefix(`/wordnet`)
       - traefik.http.routers.frontend_eu.middlewares=frontend_eu-stripprefix
       - traefik.http.services.frontend_eu.loadbalancer.server.port=80
-      - traefik.http.middlewares.frontend_eu-stripprefix.stripprefix.prefixes=/wordnet-eu
+      - traefik.http.middlewares.frontend_eu-stripprefix.stripprefix.prefixes=/wordnet
     networks:
       - lang-network      
  
