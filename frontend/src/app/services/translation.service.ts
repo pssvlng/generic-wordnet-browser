@@ -1,5 +1,6 @@
+import { APP_BASE_HREF } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { forkJoin, Observable, of, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AppConfig } from '../config/app-config';
@@ -10,12 +11,12 @@ import { AppConfig } from '../config/app-config';
 export class TranslationService {
   private translations: { [lang: string]: any } = {};
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, @Inject(APP_BASE_HREF) private baseHref: string) { }
 
   public preloadTranslations(): Observable<any> {
     const languages = AppConfig.availableLangs.map((lang) => lang.trim());
     const requests = languages.map((lang) =>
-      this.http.get(`/assets/i18n/${lang}.json`).pipe(
+      this.http.get(`${this.baseHref}assets/i18n/${lang}.json`).pipe(
         tap((data) => {
           this.translations[lang] = data;
         }),

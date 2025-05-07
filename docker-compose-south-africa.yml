@@ -5,7 +5,9 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend_south_africa.rule=PathPrefix(`/wordnet-south-africa`)
+      - traefik.http.routers.frontend_south_africa.middlewares=frontend_south_africa-stripprefix
       - traefik.http.services.frontend_south_africa.loadbalancer.server.port=80
+      - traefik.http.middlewares.frontend_south_africa-stripprefix.stripprefix.prefixes=/wordnet-south-africa
     networks:
       - lang-network      
  

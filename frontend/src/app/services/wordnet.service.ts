@@ -89,7 +89,7 @@ export class WordnetService {
 
   getImage(params: ImageInputParams): Observable<string> {
     const query = `?synsetId=${params.synsetId || ''}&fileName=${params.fileName || ''}&level=${params.level || ''}&filterLangs=${params.filterLangs.join(',') || ''}&hierarchy=${params.hierarchy || ''}&partWhole=${params.partWhole || ''}&maxLeafNodes=${params.maxLeafNodes || ''}&synonymCount=${params.synonymCount || ''}&woi=${params.woi || ''}`;
-    return this.http.get(`${this.wordnet_url}image/${query}`, { responseType: 'arraybuffer' })
+    return this.http.get(`${this.wordnet_url}image/${query}`, { responseType: 'arraybuffer', headers: this.httpOptions.headers })
       .pipe(
         map((imageArrayBuffer: ArrayBuffer) => {
           const base64String = btoa(
@@ -104,7 +104,7 @@ export class WordnetService {
 
   getAudio(text: string, lang: string): Observable<Blob> {
     const query = `?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}`;
-    return this.http.get(`${this.wordnet_url}tts/${query}`, { responseType: 'blob' })
+    return this.http.get(`${this.wordnet_url}tts/${query}`, { responseType: 'blob', headers: this.httpOptions.headers })
       .pipe(
         catchError(error => {
           this.toastr.error('Audio for this language unavailable or not supported', 'Error');

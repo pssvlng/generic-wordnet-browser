@@ -29,6 +29,9 @@ import { ToastrModule } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
 import { TranslationService } from './services/translation.service';
 
+import { APP_BASE_HREF, DOCUMENT } from '@angular/common';
+
+
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
@@ -78,6 +81,14 @@ export function preloadTranslationsFactory(translationService: TranslationServic
   providers: [
     { 
       provide: LocationStrategy, useClass: HashLocationStrategy,
+    },
+    {
+      provide: APP_BASE_HREF,
+      useFactory: (document: Document) => {     
+        const baseHref = document.location.pathname; 
+        return baseHref.endsWith('/') ? baseHref : `${baseHref}/`;
+      },
+      deps: [DOCUMENT]
     },
     {
       provide: APP_INITIALIZER,

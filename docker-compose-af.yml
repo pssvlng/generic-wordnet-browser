@@ -5,7 +5,9 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend_af.rule=PathPrefix(`/wordnet-af`)
+      - traefik.http.routers.frontend_af.middlewares=frontend_af-stripprefix
       - traefik.http.services.frontend_af.loadbalancer.server.port=80
+      - traefik.http.middlewares.frontend_af-stripprefix.stripprefix.prefixes=/wordnet-af
     networks:
       - lang-network      
  
