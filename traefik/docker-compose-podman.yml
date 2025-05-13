@@ -1,0 +1,17 @@
+services:
+  traefik:
+    image: traefik:v3.3
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - 80:80
+    volumes:
+      - /run/podman/podman.sock:/var/run/docker.sock
+    networks:
+      - lang-network            
+
+networks:
+  lang-network:
+    external: true 
