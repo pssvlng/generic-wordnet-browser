@@ -19,11 +19,11 @@ docker-compose up
 ## Sample Projects
 Below are some sample projects that have been configured and deployed using this open source project:
 <ul>
-<li>European Languages: <a href="https://wn.yovisto.com/wordnet" target="_blank">https://wn.yovisto.com/wordnet</a></li>
-<li>German: <a href="https://wn.yovisto.com/wordnet-de" target="_blank">https://wn.yovisto.com/wordnet-de</a></li>
-<li>Afrikaans: <a href="https://wn.yovisto.com/wordnet-af" target="_blank">https://wn.yovisto.com/wordnet-af</a></li>
-<li>South African Indigenous Languages: <a href="https://wn.yovisto.com/wordnet-south-africa" target="_blank">https://wn.yovisto.com/wordnet-south-africa</a></li>
-<li>Ukrainian: <a href="https://wn.yovisto.com/wordnet-ua" target="_blank">https://wn.yovisto.com/wordnet-ua</a></li>
+<li>European Languages: <a href="https://wn.yovisto.com/wordnet">https://wn.yovisto.com/wordnet</a></li>
+<li>German: <a href="https://wn.yovisto.com/wordnet-de">https://wn.yovisto.com/wordnet-de</a></li>
+<li>Afrikaans: <a href="https://wn.yovisto.com/wordnet-af">https://wn.yovisto.com/wordnet-af</a></li>
+<li>South African Indigenous Languages: <a href="https://wn.yovisto.com/wordnet-south-africa">https://wn.yovisto.com/wordnet-south-africa</a></li>
+<li>Ukrainian: <a href="https://wn.yovisto.com/wordnet-ua">https://wn.yovisto.com/wordnet-ua</a></li>
 </ul>
 
 
