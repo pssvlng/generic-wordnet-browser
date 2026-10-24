@@ -1,6 +1,7 @@
 <h2>
     <span *ngIf="inputHistory.length > 0">
-        <a (click)="back()">
+        <a (click)="back()" role="button" tabindex="0" aria-label="Back to previous results"
+            (keydown.enter)="back()" (keydown.space)="$event.preventDefault(); back()">
             <mat-icon>keyboard_arrow_left</mat-icon>
         </a>
     </span>
@@ -14,6 +15,7 @@
 </h2>
 
 <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+<p role="alert" *ngIf="errorMessage">{{ errorMessage }}</p>
 <app-image-popup #popup></app-image-popup>
 <div *ngIf="totalPages > 1" class="pagination-controls">
     <span>
@@ -113,7 +115,7 @@
                 { type: 'entailment', icon: 'arrow_forward', title: 'SEARCH.ENTAILMENTS' }
             ]">
                 <ng-container *ngIf="word.linguisticCounter[counter.type] > 0">
-                    <a [title]="getWordLangTranslation(counter.title, word.lang)"
+                    <a [title]="getWordLangTranslation(counter.title, word.lang)" [attr.data-relation]="counter.type"
                         (click)="getWords(word, counter.type)">
                         <mat-icon>{{ counter.icon }}</mat-icon>
                     </a>
@@ -190,4 +192,4 @@
     </div>
 </div>
 
-<div *ngIf="words.length === 0 && inputParams && !loading">{{ getWordLangTranslation('SEARCH.NO_RESULTS', 'en') }}</div>
+<div *ngIf="words.length === 0 && inputParams && !loading && !errorMessage">{{ getWordLangTranslation('SEARCH.NO_RESULTS', 'en') }}</div>

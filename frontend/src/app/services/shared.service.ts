@@ -7,11 +7,11 @@ import { AppConfig } from '../config/app-config';
 })
 export class SharedService implements OnDestroy {
 
-  private messageSource = new BehaviorSubject<string[]>(AppConfig.availableLangs);
+  private messageSource = new BehaviorSubject<string[]>([...AppConfig.availableLangs]);
   currentMessage = this.messageSource.asObservable();
 
   changeAvailableLangs(message: string[]) {
-    this.messageSource.next(message);
+    this.messageSource.next([...message]);
   }
 
   ngOnDestroy() {

@@ -2,6 +2,9 @@ services:
   frontend_south_africa:
     build:
       context: ./frontend
+      args:
+        BASE_HREF: /wordnet-south-africa/
+        BACKEND_UPSTREAM: backend_south_africa:5000
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend_south_africa.rule=PathPrefix(`/wordnet-south-africa`)
@@ -14,6 +17,10 @@ services:
   backend_south_africa:
     build:
       context: ./backend
+    environment:
+      WORDNET_LANGUAGES: en,zu,xh,st,ts
+      WORDNET_URL_PREFIX: /wordnet-south-africa
+      WORDNET_PUBLIC_URL: ${WORDNET_PUBLIC_URL_SOUTH_AFRICA:-}
     labels:
       - traefik.enable=true
       - traefik.http.routers.backend_south_africa.rule=PathPrefix(`/api/dict`) && Header(`X-Lang`, `south-africa`)

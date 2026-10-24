@@ -1,4 +1,5 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { AppConfig } from './config/app-config';
 import { LANG_ICON_CLASS_LOOKUP, LANGUAGEMAPDESCRIPTIONS } from './constants/lang-icon-lookup';
 import { SharedService } from './services/shared.service';
@@ -13,10 +14,10 @@ interface CheckboxItem {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   title = AppConfig.title;
   flagList = AppConfig.flagList;
-  availableLangs = AppConfig.availableLangs;
+  availableLangs = [...AppConfig.availableLangs];
   langIconClassLookup = LANG_ICON_CLASS_LOOKUP;
   
   items: CheckboxItem[] = AppConfig.availableLangs.map((lang) => {
@@ -28,10 +29,18 @@ export class AppComponent {
   
   menuOpen = false;
   allSelected: boolean = true;
+  private subscription: Subscription;
 
   constructor(
     private sharedService: SharedService
-  ) {}
+  ) {
+    this.subscription = this.sharedService.currentMessage.subscribe(languages => {
+      this.availableLangs = [...languages];
+      this.allSelected = languages.length === this.items.length;
+    });
+  }
+
+  ngOnDestroy(): void { this.subscription.unsubscribe(); }
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
@@ -53,7 +62,7 @@ export class AppComponent {
     this.allSelected = event.checked;
     this.availableLangs = this.allSelected
       ? this.items.map(item => item.id)
-      : ['en'];
+      : [this.items[0].id];
     this.sharedService.changeAvailableLangs(this.availableLangs);
   }
 

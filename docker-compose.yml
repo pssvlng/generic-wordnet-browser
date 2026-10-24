@@ -21,6 +21,9 @@ services:
   backend:
     build:
       context: ./backend
+    environment:
+      WORDNET_LANGUAGES: en,de,nl,fr,es,pt,it
+      WORDNET_PUBLIC_URL: ${WORDNET_PUBLIC_URL:-}
     labels:
       - traefik.enable=true
       - traefik.http.routers.backend.rule=PathPrefix(`/api/dict`)

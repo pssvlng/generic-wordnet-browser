@@ -1,6 +1,6 @@
 import os
 import tempfile
-import uuid
+import json
 from gtts import gTTS
 import pandas as pd
 import numpy as np
@@ -10,26 +10,46 @@ from sklearn.metrics import DistanceMetric
 from flask import Flask, Response, request, send_file
 from flask_cors import cross_origin
 
-from passivlingo_dictionary.Dictionary import Dictionary
-from passivlingo_dictionary.models.SearchParam import SearchParam
+import passivlingo_dictionary as pld
 from config import getWordNetEmbeddings
 from encoders.WordEncoder import WordEncoder
-from helpers.CommonHelper import CommonHelper
 from helpers.Constants import AUDIO_LANG_MAP, POS_MAPPINGS
 from imageCreation.CombinedImageWrapper import main
+from wordnet_service import RELATIONS, WordnetService
+from lemmatizer_cache import LEMMATIZERS
+from resource_routes import init_resources
 import wn
 
 app = Flask(__name__)
+init_resources(app)
 
 # Load model and data
 MODEL = SentenceTransformer("all-MiniLM-L6-v2", device='cpu')
 DF = pd.read_csv('wordnet_txt_embeddings_input.csv', sep='\t', header=0, index_col=None)
 EMBEDDING_ARR = getWordNetEmbeddings()
 
+# Load each configured language model once per worker, before serving searches.
+LEMMATIZERS.warm(app.config['WORDNET_LANGUAGES'])
+
 def error_response(message: str, status: int = 400) -> Response:
-    return Response(response=f'{{"error": "{message}"}}', status=status, mimetype="application/json")
+    return Response(response=json.dumps({'error': message}), status=status, mimetype="application/json")
 
 # Dictionary endpoints
+@app.route('/api/dict/lookup/<kind>/<path:value>', methods=['GET'])
+@cross_origin()
+def lookup(kind, value):
+    try:
+        allowed = app.config['WORDNET_LANGUAGES']
+        languages = request.args.get('filterlang', ','.join(allowed)).split(',')
+        if not languages or any(lang not in allowed for lang in languages):
+            raise ValueError('Unsupported language; configured languages: ' + ', '.join(allowed))
+        service = WordnetService(languages)
+        results = service.lookup(kind, value, request.args.get('lang'), request.args.get('relation'))
+        return Response(WordEncoder().encode(results), mimetype='application/json')
+    except (ValueError, pld.Error, wn.Error) as err:
+        return error_response(str(err), status=400)
+
+
 @app.route('/api/dict/words/', methods=['GET'])
 @cross_origin()
 def words():
@@ -50,20 +70,12 @@ def words():
         )
 
     try:
-        dict_obj = Dictionary()
-        param = SearchParam()
-        param.wordkey = wordkey
-        param.category = category
-        param.lang = lang
-        param.woi = woi
-        param.lemma = lemma
-        param.pos = pos
-        param.filterLang = filterLang        
-        param.ili = ili
-        results = dict_obj.findWords(param)
-        results = CommonHelper.getLodViews(results)
+        results = WordnetService(filterLang).search(
+            wordkey=wordkey, category=category, lang=lang, woi=woi,
+            lemma=lemma, pos=pos, ili=ili,
+        )
         return Response(WordEncoder().encode(results), mimetype='application/json')
-    except ValueError as err:
+    except (ValueError, pld.Error, wn.Error) as err:
         return error_response(str(err), status=404)
 
 @app.route('/api/dict/examples/', methods=['GET'])
@@ -73,36 +85,25 @@ def examples():
     if not wordkey:
         return error_response("Invalid argument list: 'wordkey' is required", status=404)
 
-    dict_obj = Dictionary()
-    results = dict_obj.getExampleSentences(wordkey)
-    return Response(WordEncoder().encode(results), mimetype='application/json')
+    try:
+        results = WordnetService().synset(wordkey).examples()
+        return Response(WordEncoder().encode(results), mimetype='application/json')
+    except (ValueError, pld.Error, wn.Error) as err:
+        return error_response(str(err), status=404)
 
 @app.route('/api/dict/related/', methods=['GET'])
 @cross_origin()
 def get_related():
-    def get_exclusions(ili: str) -> list:
-        exclusions = [ili]
-        dict_obj = Dictionary()
-        param = SearchParam()    
-        param.lang = lang
-        param.filterLang = filterLang
-        param.wordkey = wordkey
-        exclusions.append(ili)
-        for category in ['hypernym', 'hyponym', 'holonym', 'meronym', 'entailment', 'antonym']:
-            param.category = category
-            sub_results = dict_obj.findWords(param)
-            exclusions.extend([r.ili for r in sub_results])
-        return exclusions
-
     wordkey = request.args.get('wordkey')
     ili = request.args.get('ili')
     lang = request.args.get('lang')
-    filterLang = request.args['filterlang']
+    filterLang = request.args.get('filterlang')
     
     if None in [ili, lang]:
         return error_response("Invalid argument list: 'ili' and 'lang' are required", status=404)
 
     try:
+        service = WordnetService(filterLang)
         synset = wn.synsets(ili=ili, lang='en')[0]
         query_txt = f'{", ".join(synset.lemmas())} (Part of Speech = {POS_MAPPINGS[synset.pos]}): {synset.definition()}'
         if synset.pos in ["n", "v"]:
@@ -113,19 +114,17 @@ def get_related():
         dist_arr = dist.pairwise(EMBEDDING_ARR, query_embedding.reshape(1, -1)).flatten()
         idist_arr_sorted = np.argsort(dist_arr)
 
-        exclusions = get_exclusions(ili)
+        source_synsets = [service.synset(wordkey)] if wordkey else service.synsets_from_ili(ili, lang)
+        exclusions = {ili}
+        for source in source_synsets:
+            for category in RELATIONS:
+                exclusions.update(related.ili for related in service.relations(source, category))
         final_results = []
-        dict_obj = Dictionary()
-        param = SearchParam()
-        param.lang = lang  
-        param.filterLang = filterLang        
         for val in DF['ili'].iloc[idist_arr_sorted[:10 + len(exclusions)]].values:
             if val not in exclusions:
-                param.ili = val
-                words = dict_obj.findWords(param)
-                if len(words) != 0:                        
-                    final_result = CommonHelper.getLodViews([words[0]])
-                    final_results.extend(final_result)
+                synsets = service.synsets_from_ili(val, lang)
+                if synsets:
+                    final_results.extend(service.serialize(synsets[:1]))
                 if len(final_results) == 10:
                     break
 

@@ -2,6 +2,9 @@ services:
   frontend_ua:
     build:
       context: ./frontend
+      args:
+        BASE_HREF: /wordnet-ua/
+        BACKEND_UPSTREAM: backend_ua:5000
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend_ua.rule=PathPrefix(`/wordnet-ua`)
@@ -14,6 +17,10 @@ services:
   backend_ua:
     build:
       context: ./backend
+    environment:
+      WORDNET_LANGUAGES: ua,en
+      WORDNET_URL_PREFIX: /wordnet-ua
+      WORDNET_PUBLIC_URL: ${WORDNET_PUBLIC_URL_UA:-}
     labels:
       - traefik.enable=true
       - traefik.http.routers.backend_ua.rule=PathPrefix(`/api/dict`) && Header(`X-Lang`, `ua`)

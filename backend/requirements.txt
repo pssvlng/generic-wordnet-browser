@@ -1,4 +1,4 @@
-passivlingo-dictionary
+passivlingo-dictionary==2.0.1
 spacy_dbpedia_spotlight
 nltk
 bs4

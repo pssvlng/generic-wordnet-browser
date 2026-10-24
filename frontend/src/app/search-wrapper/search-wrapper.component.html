@@ -1,8 +1,9 @@
 <div>
     <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
-        <input formControlName="searchText" [placeholder]="placeholder">
+        <input formControlName="searchText" [placeholder]="placeholder" aria-label="Word, ILI or synset identifier">
         <button type="submit">{{ searchButtonText }}</button>
     </form>
 </div>
 
-<app-search></app-search>
+<p role="alert" *ngIf="error">{{ error }}</p>
+<app-search *ngIf="inputParams" [inputParams]="inputParams"></app-search>

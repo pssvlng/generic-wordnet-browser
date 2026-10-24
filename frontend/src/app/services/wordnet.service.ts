@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
@@ -34,7 +34,22 @@ export class WordnetService {
   }
 
   getWords(params: InputParams): Observable<Word[]> {
-    const query = `?woi=${params.woi || ''}&pos=${params.pos || ''}&lang=${params.lang || ''}&filterlang=${params.availableLangs.join(',') || ''}&lemma=${params.lemma || ''}&category=${params.category || ''}&wordkey=${params.wordkey || ''}&ili=${params.ili || ''}`;
+    if (params.lookup) {
+      const query = new HttpParams({ fromObject: {
+        filterlang: params.availableLangs.join(','),
+        ...(params.lang ? { lang: params.lang } : {}),
+        ...(params.category ? { relation: params.category } : {}),
+      }});
+      return this.http.get<Word[]>(
+        `${this.wordnet_url}lookup/${params.lookup.kind}/${encodeURIComponent(params.lookup.value)}`,
+        { ...this.httpOptions, params: query },
+      ).pipe(map(results => this.processWords(results, params)));
+    }
+    const query = '?' + new HttpParams({ fromObject: {
+      woi: params.woi || '', pos: params.pos || '', lang: params.lang || '',
+      filterlang: params.availableLangs.join(','), lemma: params.lemma || '',
+      category: params.category || '', wordkey: params.wordkey || '', ili: params.ili || '',
+    }}).toString();
     return this.http.get<Word[]>(`${this.wordnet_url}words/${query}`, this.httpOptions)
       .pipe(
         tap(() => this.log('Fetched words')),
@@ -114,7 +129,7 @@ export class WordnetService {
   }  
 
   getExampleSentences(word_key: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.wordnet_url}examples/?wordkey=${word_key}`, this.httpOptions)
+    return this.http.get<string[]>(`${this.wordnet_url}examples/?wordkey=${encodeURIComponent(word_key)}`, this.httpOptions)
       .pipe(
         tap(_ => this.log('fetched examples')),
         catchError(this.handleError<string[]>('getExampleSentences', []))

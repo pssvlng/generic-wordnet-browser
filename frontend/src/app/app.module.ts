@@ -17,7 +17,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { SearchComponentDlgWrapperComponent } from './search-component-dlg-wrapper/search-component-dlg-wrapper.component';
 import { SearchComponent } from './search/search.component';
 
-import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ImagePopupComponent } from './image-popup/image-popup.component';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
@@ -79,14 +78,10 @@ export function preloadTranslationsFactory(translationService: TranslationServic
   
   bootstrap: [AppComponent],
   providers: [
-    { 
-      provide: LocationStrategy, useClass: HashLocationStrategy,
-    },
     {
       provide: APP_BASE_HREF,
       useFactory: (document: Document) => {     
-        const baseHref = document.location.pathname; 
-        return baseHref.endsWith('/') ? baseHref : `${baseHref}/`;
+        return document.querySelector('base')?.getAttribute('href') || '/';
       },
       deps: [DOCUMENT]
     },

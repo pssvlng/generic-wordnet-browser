@@ -1,4 +1,7 @@
+import { Lookup } from '../services/search-navigation.service';
+
 export interface InputParams {
+    lookup?: Lookup,
     woi: string | undefined,
     pos: string | undefined,
     lemma: string | undefined,

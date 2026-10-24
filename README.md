@@ -12,6 +12,23 @@ Some European Languages ('de', 'fr', 'es', 'pt', 'it', 'nl') have more complete 
 Under the `frontend\src\app\config` folder there is a file called `app-config.ts`. The configurations in this file should be self-explanatory, but it is important that the languages configured in this file should match the languages specified in `post_install_scripts.py` in the backend. In the same directory where the `app-config.py` file is located, there are also examples of other configurations that can be used or adapted as seen fit.
 
 ## Execution
+For shareable lemma, synset and ILI URLs, optional language filters,
+deployment under a URL prefix, and HTTP content negotiation for JSON/Turtle/RDF,
+see [Lookup URLs](docs/routing.md).
+
+The backend requires Python 3.10+ and pins `passivlingo-dictionary==2.0.1`.
+It uses the public `Wordnet(backend="omw")` API with the existing `wn` lexicons.
+The HTTP responses retain the fields used by the frontend (including the
+historical `wordnetId: "own"` value). See the
+[library migration guide](https://passivlingo-dictionary.readthedocs.io/en/latest/guides/legacy.html).
+
+Backend integration checks use locally installed English WordNet data, with
+additional German and graph checks when those dependencies are available:
+```bash
+cd backend
+python3 -m unittest discover -s tests -v
+```
+
 After the configurations have been completed, the application can be started by running the docker containers from the root folder:
 ```bash
 docker-compose up

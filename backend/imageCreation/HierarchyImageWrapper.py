@@ -1,9 +1,8 @@
-import wn
 import sys
 import os
 import tempfile
-from passivlingo_dictionary.encoders.WordEncoder import WordEncoder
-from passivlingo_dictionary.wrappers.OwnSynsetWrapper import OwnSynsetWrapper
+from encoders.WordEncoder import WordEncoder
+from wordnet_service import WordnetService
 from pathlib import Path
 from .ImageWrapper import getArgvTransform, getFontName
 from .ImageWrapper import writeOutput
@@ -25,8 +24,7 @@ def main(argv):
             print(WordEncoder().encode(data))
             return
 
-        loc_synset = wn.synset(argvTransform['synsetId'])        
-        synset = OwnSynsetWrapper(loc_synset.lexicon().language, loc_synset)
+        synset = WordnetService(argvTransform['filterLangs']).synset(argvTransform['synsetId'])
         level = int(argvTransform['level'])
         branch_count = int(argvTransform['maxLeafNodes'])
         filter_langs = argvTransform['filterLangs']

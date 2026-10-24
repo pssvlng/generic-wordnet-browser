@@ -1,9 +1,7 @@
-import wn
 import sys
 import os
 import tempfile
-from passivlingo_dictionary.encoders.WordEncoder import WordEncoder
-from passivlingo_dictionary.wrappers.OwnSynsetWrapper import OwnSynsetWrapper
+from wordnet_service import WordnetService
 from pathlib import Path
 from .ImageWrapper import getArgvTransform, getFontName
 from .ImageWrapper import writeOutput
@@ -37,10 +35,10 @@ def main(argv):
         body = ''
         body1 = ''
 
-        synsets = []        
+        service = WordnetService(filter_langs)
+        synsets = []
         for synset_id in argvTransform['synsetId'].split(','):
-            loc_synset = wn.synset(synset_id)
-            synsets.append(OwnSynsetWrapper(loc_synset.lexicon().language, loc_synset))
+            synsets.append(service.synset(synset_id))
 
         if is_hierarchy:
             body = build_body(synsets, woi, level, filter_langs,

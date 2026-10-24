@@ -1,7 +1,5 @@
 import os
-import wn
-from passivlingo_dictionary.encoders.WordEncoder import WordEncoder
-from passivlingo_dictionary.wrappers.OwnSynsetWrapper import OwnSynsetWrapper
+from encoders.WordEncoder import WordEncoder
 
 from helpers.Constants import ABBREVIATIONS
 
@@ -82,16 +80,14 @@ def formatNodeDisplay(synset, woi, filter_langs, ili, synonym_count):
         if 'en' in langs:
             langs.remove('en')
             langs.insert(0, 'en')
-        for lang in langs:
-            synsets_local = wn.synsets(ili=ili, lang=lang)
-            if len(synsets_local) > 0:
-                s = OwnSynsetWrapper(lang, synsets_local[0])
-                result[lang] = __formatSynonymDisplay(s, woi, synonym_count)
+        for translated in synset.translate(lang=langs):
+            result.setdefault(translated.lang, __formatSynonymDisplay(translated, woi, synonym_count))
     else:
         result[synset.id] = __formatSynonymDisplay(synset, woi, synonym_count)
 
     if len(result) == 0:
-        s = OwnSynsetWrapper('en', wn.synsets(ili=ili, lang='en')[0])
-        result['en'] = __formatSynonymDisplay(s, woi, synonym_count)
+        english = synset.translate(lang='en')
+        fallback = english[0] if english else synset
+        result[fallback.lang] = __formatSynonymDisplay(fallback, woi, synonym_count)
 
     return f"{' | '.join(result.values())}"

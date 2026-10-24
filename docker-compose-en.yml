@@ -2,6 +2,9 @@ services:
   frontend_en:
     build:
       context: ./frontend
+      args:
+        BASE_HREF: /wordnet-en/
+        BACKEND_UPSTREAM: backend_en:5000
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend_en.rule=PathPrefix(`/wordnet-en`)
@@ -14,6 +17,10 @@ services:
   backend_en:
     build:
       context: ./backend
+    environment:
+      WORDNET_LANGUAGES: en
+      WORDNET_URL_PREFIX: /wordnet-en
+      WORDNET_PUBLIC_URL: ${WORDNET_PUBLIC_URL_EN:-}
     labels:
       - traefik.enable=true
       - traefik.http.routers.backend_en.rule=PathPrefix(`/api/dict`) && Header(`X-Lang`, `en`)

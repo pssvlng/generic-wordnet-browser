@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { from, mergeMap, Subject, takeUntil, tap } from 'rxjs';
+import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
+import { from, merge, mergeMap, Subject, takeUntil } from 'rxjs';
 import { LANG_ICON_CLASS_LOOKUP } from '../constants/lang-icon-lookup';
 import { ImagePopupComponent } from '../image-popup/image-popup.component';
 import { ExampleSentenceResponse } from '../models/example-sentence-response';
@@ -16,12 +16,19 @@ interface DataObject {
   [key: string]: any;
 }
 
+interface SearchState {
+  words: Word[];
+  title: string;
+  inputParams: InputParams;
+  page: number;
+}
+
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
-export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
+export class SearchComponent implements OnChanges, OnDestroy {
   @ViewChild('popup') popup!: ImagePopupComponent;
 
   @Input() inputParams!: InputParams;
@@ -34,11 +41,13 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   totalPages: number = 0;
 
   title!: string;
-  inputHistory: Array<[Word[], string]> = new Array<[Word[], string]>();
+  inputHistory: SearchState[] = [];
   loading: boolean = false;
+  errorMessage = '';
   langIconClassLookup = LANG_ICON_CLASS_LOOKUP;
 
   private onDestroy$: Subject<void> = new Subject<void>();
+  private searchCancelled$ = new Subject<void>();
 
   constructor(
     private wordnetService: WordnetService,
@@ -47,19 +56,16 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   ) { }
 
   // Lifecycle Hooks
-  ngOnInit(): void {
-   
-  }
-
-  ngAfterViewInit(): void {
-    if (this.inputParams) {
-      this.refreshView();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['inputParams'] && this.inputParams) {
+      this.setInputParams(this.inputParams);
     }
   }
 
   ngOnDestroy(): void {
     this.onDestroy$.next();
     this.onDestroy$.complete();
+    this.searchCancelled$.complete();
   }
 
   // Centralized Error Management
@@ -93,11 +99,16 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   private processResults(results: Word[], withSenseExamples: boolean = true): void {
+    results.forEach(item => item.definition ||= item.synonyms.join(', '));
+    this.words = results;
+    this.currentPage = 1;
+    this.totalPages = Math.ceil(this.words.length / this.itemsPerPage);
+    this.updatePaginatedWords();
+    this.loading = false;
     const filteredResults = withSenseExamples ? results.filter(result => result.lang == "en") : [];
     const observer = {
       next: (result: ExampleSentenceResponse) => {
-        if (!this.loading) { this.loading = true; }
-        if (result) {
+        if (result?.sentence) {
           const word = results.find(x => x.wordKey == result.word_key && x.lang == result.lang);
           if (word) {
             word.example = result.sentence;
@@ -105,37 +116,34 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
         }
       },
       error: (err: any) => this.handleError(err, 'processResults'),
-      complete: () => {
-        this.loading = false;
-        results.forEach(item => item.definition ||= item.synonyms.join(', '));
-        this.words = results;
-        this.currentPage = 1;
-        this.totalPages = Math.ceil(this.words.length / this.itemsPerPage);
-        this.updatePaginatedWords();
-      }
     };
 
     from(filteredResults).pipe(
       mergeMap(item =>
-        this.wordnetService.getSenseExampleSentence(item.wordKey, item.name, "en").pipe(
-          tap(result => console.log(`Result for ID ${item}:`, result))
-        )
+        this.wordnetService.getSenseExampleSentence(item.wordKey, item.name, "en"), 4
       ),
-      takeUntil(this.onDestroy$)
+      takeUntil(merge(this.onDestroy$, this.searchCancelled$))
     ).subscribe(observer);
   }
 
   private search(): void {
+    this.searchCancelled$.next();
     this.words = [];
+    this.paginatedWords = [];
+    this.totalPages = 0;
+    this.errorMessage = '';
     this.loading = true;
 
     this.wordnetService.getWords(this.inputParams)
-      .pipe(takeUntil(this.onDestroy$))
+      .pipe(takeUntil(merge(this.onDestroy$, this.searchCancelled$)))
       .subscribe({
         next: (results: Word[]) => {
           this.processResults(results);
         },
-        error: (err: any) => this.handleError(err, 'search'),
+        error: (err: any) => {
+          this.errorMessage = err.error?.error || 'The search could not be completed. Please try again.';
+          this.loading = false;
+        },
         complete: () => this.loading = false
       });
   }
@@ -144,7 +152,8 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   refreshView(): void {
     this.title = this.inputParams.lemma
       ? `${this.inputParams.lemma}(${this.inputParams.pos})`
-      : this.inputParams.woi || '';
+      : this.inputParams.woi || this.inputParams.lookup?.value || '';
+    if (this.inputParams.category) this.title = `${this.inputParams.category}: ${this.title}`;
 
     this.search();
   }
@@ -156,6 +165,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   setResults(results: Word[], title: string, inputParams: InputParams | null): void {
+    this.searchCancelled$.next();
     this.inputHistory = [];
     this.title = title;        
     this.inputParams = inputParams || this.inputParams;
@@ -164,8 +174,10 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
 
   setAvailableLangs(langs: string[]): void {
     if (this.inputParams) {
-      this.inputHistory.push([this.words, this.title]);
-      this.inputParams.availableLangs = langs;
+      this.rememberView();
+      this.inputParams = { ...this.inputParams, availableLangs: [...langs] };
+      // A menu change overrides the initial URL's language filter locally.
+      if (this.inputParams.lookup) this.inputParams.lang = undefined;
       if (this.inputParams.category !== 'synonym') {
         this.search();
       }      
@@ -173,11 +185,21 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   }
     
   back(): void {
-    if (this.inputHistory.length > 0) {
-      const p = this.inputHistory.pop() as [Word[], string];
-      this.title = p[1];
-      this.processResults(p[0], false);
+    const previous = this.inputHistory.pop();
+    if (previous) {
+      this.searchCancelled$.next();
+      this.errorMessage = '';
+      this.title = previous.title;
+      this.inputParams = previous.inputParams;
+      this.processResults(previous.words, false);
+      this.currentPage = previous.page;
+      this.updatePaginatedWords();
     }
+  }
+
+  private rememberView(): void {
+    this.inputHistory.push({ words: this.words, title: this.title,
+      inputParams: structuredClone(this.inputParams), page: this.currentPage });
   }
 
   // Word Operations
@@ -197,7 +219,8 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   displayRelatedWords(from_word: Word, words: Word[]): void {
-    this.inputHistory.push([this.words, this.title]);
+    this.rememberView();
+    this.searchCancelled$.next();
     this.title = `${this.getWordLangTranslation('SEARCH.SIMILAR_TO', from_word.lang)}: ${from_word.name} (${this.getWordLangTranslation('SEARCH.' + from_word.pos.toUpperCase(), from_word.lang)})`;
     this.words = [];
     words.forEach(item => item.relatedSynsets = []);
@@ -205,10 +228,11 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   getWords(word: Word, category: string, woi: (string | null) = null): void {
-    this.inputHistory.push([this.words, this.title]);
+    this.rememberView();
     this.title = `${this.getWordLangTranslation('SEARCH.' + category.toUpperCase(), word.lang)}: ${word.name} (${this.getWordLangTranslation('SEARCH.' + word.pos.toUpperCase(), word.lang)})`;
     this.inputParams = Object.assign({ wordkey: word.wordKey, lang: word.lang, availableLangs: this.inputParams.availableLangs, category: category });
     if (category == 'synonym') {
+      this.searchCancelled$.next();
       const newWord = structuredClone(word) as Word;
       newWord.synonyms.push(newWord.name);
       newWord.synonyms = newWord.synonyms.filter(item => item !== woi);
@@ -224,7 +248,7 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   getTranslation(word: Word, lang: string, woi: string): void {
-    this.inputHistory.push([this.words, this.title]);
+    this.rememberView();
     this.title = `${this.getWordLangTranslation('SEARCH.TRANSLATION', lang)}: ${word.name} (${this.getWordLangTranslation('SEARCH.' + word.pos.toUpperCase(), word.lang)})`;
     this.inputParams = Object.assign({ ili: word.ili, lang: lang, woi: woi, availableLangs: this.inputParams.availableLangs });
     this.search();    
@@ -234,12 +258,12 @@ export class SearchComponent implements AfterViewInit, OnDestroy, OnInit {
   getOtherLangs(word: Word): string[] {
     return (this.inputParams.availableLangs)
       .filter(lang => lang !==
-        word.lang && word.genericLanguageDescriptions.descriptionLookup[lang].split(',')
+        word.lang && (word.genericLanguageDescriptions.descriptionLookup[lang] || '').split(',')
           .filter(item => item).length > 0);
   }
 
   getLangItems(word: Word, lang: string): string[] {
-    return word.genericLanguageDescriptions.descriptionLookup[lang].split(',');
+    return (word.genericLanguageDescriptions.descriptionLookup[lang] || '').split(',');
   }
 
   onGetExamples(word: Word): void {
