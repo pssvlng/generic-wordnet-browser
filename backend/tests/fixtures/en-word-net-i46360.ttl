@@ -1,0 +1,179 @@
+@prefix wordnetlicense: <https://creativecommons.org/licenses/by/4.0/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix wn: <https://globalwordnet.github.io/schemas/wn#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vartrans: <http://www.w3.org/ns/lemon/vartrans#> .
+@prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#> .
+@prefix synsem: <http://www.w3.org/ns/lemon/synsem#> .
+@prefix ili: <http://ili.globalwordnet.org/ili/> .
+@prefix lime: <http://www.w3.org/ns/lemon/lime#> .
+@prefix wikidata: <http://www.wikidata.org/entity/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix wordnetsynset: <https://en-word.net/synset/> .
+@prefix wordnetframe: <https://en-word.net/frame/> .
+@prefix wordnetlemma: <https://en-word.net/lemma/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix wordnet: <https://en-word.net/> .
+@prefix schema: <http://schema.org/> .
+wordnetlemma:Canis_familiaris-n a ontolex:LexicalEntry ;
+	ontolex:canonicalForm wordnetlemma:Canis_familiaris-n\#canonicalForm .
+wordnetlemma:Canis_familiaris-n\#canonicalForm a ontolex:Form ;
+	ontolex:writtenRep "Canis familiaris"@en .
+wordnetlemma:Canis_familiaris-n wn:partOfSpeech wn:noun ;
+	ontolex:sense wordnetlemma:Canis_familiaris-n\#02086723-n .
+wordnetlemma:dog-n a ontolex:LexicalEntry ;
+	ontolex:canonicalForm wordnetlemma:dog-n\#canonicalForm .
+wordnetlemma:dog-n\#canonicalForm a ontolex:Form ;
+	ontolex:writtenRep "dog"@en .
+wordnetlemma:dog-n wn:partOfSpeech wn:noun ;
+	ontolex:sense wordnetlemma:dog-n\#02086723-n .
+wordnetlemma:domestic_dog-n a ontolex:LexicalEntry ;
+	ontolex:canonicalForm wordnetlemma:domestic_dog-n\#canonicalForm .
+wordnetlemma:domestic_dog-n\#canonicalForm a ontolex:Form ;
+	ontolex:writtenRep "domestic dog"@en .
+wordnetlemma:domestic_dog-n wn:partOfSpeech wn:noun ;
+	ontolex:sense wordnetlemma:domestic_dog-n\#02086723-n .
+wordnetlemma:dog-n\#02086723-n a ontolex:LexicalSense ;
+	ontolex:isLexicalizedSenseOf wordnetsynset:02086723-n .
+wordnetlemma:domestic_dog-n\#02086723-n a ontolex:LexicalSense ;
+	ontolex:isLexicalizedSenseOf wordnetsynset:02086723-n .
+wordnetlemma:Canis_familiaris-n\#02086723-n a ontolex:LexicalSense ;
+	ontolex:isLexicalizedSenseOf wordnetsynset:02086723-n .
+wordnetsynset:02086723-n a ontolex:LexicalConcept ;
+	skos:inScheme wordnet: ;
+	wn:definition _:def-02086723-n-0 .
+_:def-02086723-n-0 rdf:value "a member of the genus Canis (probably descended from the common wolf) that has been domesticated by man since prehistoric times; occurs in many breeds"@en .
+wordnetsynset:02086723-n wn:example _:ex-02086723-n-0 .
+_:ex-02086723-n-0 rdf:value "the dog barked all night"@en .
+wordnetsynset:02086723-n wn:ili ili:i46360 ;
+	wn:lexfile "noun.animal" ;
+	wn:partOfSpeech wn:noun ;
+	wn:hypernym wordnetsynset:01320032-n .
+_:relsynset-02086723-n-hypernym-0 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hypernym ;
+	vartrans:target wordnetsynset:01320032-n .
+wordnetsynset:02086723-n wn:hypernym wordnetsynset:02085998-n .
+_:relsynset-02086723-n-hypernym-1 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hypernym ;
+	vartrans:target wordnetsynset:02085998-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:01325095-n .
+_:relsynset-02086723-n-hyponym-0 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:01325095-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02087384-n .
+_:relsynset-02086723-n-hyponym-1 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02087384-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02087513-n .
+_:relsynset-02086723-n-hyponym-2 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02087513-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02087924-n .
+_:relsynset-02086723-n-hyponym-3 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02087924-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02088026-n .
+_:relsynset-02086723-n-hyponym-4 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02088026-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02089774-n .
+_:relsynset-02086723-n-hyponym-5 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02089774-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02106058-n .
+_:relsynset-02086723-n-hyponym-6 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02106058-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02112993-n .
+_:relsynset-02086723-n-hyponym-7 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02112993-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02113458-n .
+_:relsynset-02086723-n-hyponym-8 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02113458-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02113610-n .
+_:relsynset-02086723-n-hyponym-9 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02113610-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02113781-n .
+_:relsynset-02086723-n-hyponym-10 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02113781-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02113929-n .
+_:relsynset-02086723-n-hyponym-11 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02113929-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02114152-n .
+_:relsynset-02086723-n-hyponym-12 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02114152-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02114278-n .
+_:relsynset-02086723-n-hyponym-13 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02114278-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02115149-n .
+_:relsynset-02086723-n-hyponym-14 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02115149-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02115478-n .
+_:relsynset-02086723-n-hyponym-15 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02115478-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02115987-n .
+_:relsynset-02086723-n-hyponym-16 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02115987-n .
+wordnetsynset:02086723-n wn:hyponym wordnetsynset:02116630-n .
+_:relsynset-02086723-n-hyponym-17 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:hyponym ;
+	vartrans:target wordnetsynset:02116630-n .
+wordnetsynset:02086723-n wn:holoMember wordnetsynset:02086515-n .
+_:relsynset-02086723-n-holoMember-0 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:holoMember ;
+	vartrans:target wordnetsynset:02086515-n .
+wordnetsynset:02086723-n wn:meroPart wordnetsynset:02161498-n .
+_:relsynset-02086723-n-meroPart-0 vartrans:source wordnetsynset:02086723-n ;
+	vartrans:category wn:meroPart ;
+	vartrans:target wordnetsynset:02161498-n .
+wordnetframe:ditransitive rdfs:label "Somebody ----s somebody something"@en .
+wordnetframe:nonreferential rdfs:label "It is ----ing"@en .
+wordnetframe:nonreferential-sent rdfs:label "It ----s that CLAUSE"@en .
+wordnetframe:via rdfs:label "Somebody ----s"@en .
+wordnetframe:via-adj rdfs:label "Somebody ----s Adjective"@en .
+wordnetframe:via-at rdfs:label "Somebody ----s at something"@en .
+wordnetframe:via-for rdfs:label "Somebody ----s for something"@en .
+wordnetframe:via-ger rdfs:label "Somebody ----s VERB-ing"@en .
+wordnetframe:via-inf rdfs:label "Somebody ----s INFINITIVE"@en .
+wordnetframe:via-on-anim rdfs:label "Somebody ----s on somebody"@en .
+wordnetframe:via-on-inanim rdfs:label "Somebody ----s on something"@en .
+wordnetframe:via-out-of rdfs:label "Somebody ----s out of somebody"@en .
+wordnetframe:via-pp rdfs:label "Somebody ----s PP"@en .
+wordnetframe:via-that rdfs:label "Somebody ----s that CLAUSE"@en .
+wordnetframe:via-to rdfs:label "Somebody ----s to somebody"@en .
+wordnetframe:via-to-inf rdfs:label "Somebody ----s to INFINITIVE"@en .
+wordnetframe:via-whether-inf rdfs:label "Somebody ----s whether INFINITIVE"@en .
+wordnetframe:vibody rdfs:label "Somebody's (body part) ----s"@en .
+wordnetframe:vii rdfs:label "Something ----s"@en .
+wordnetframe:vii-adj rdfs:label "Something ----s Adjective/Noun"@en .
+wordnetframe:vii-inf rdfs:label "Something ----s INFINITIVE"@en .
+wordnetframe:vii-pp rdfs:label "Something is ----ing PP"@en .
+wordnetframe:vii-to rdfs:label "Something ----s to somebody"@en .
+wordnetframe:vtaa rdfs:label "Somebody ----s somebody"@en .
+wordnetframe:vtaa-inf rdfs:label "Somebody ----s somebody INFINITIVE"@en .
+wordnetframe:vtaa-into-ger rdfs:label "Somebody ----s somebody into V-ing something"@en .
+wordnetframe:vtaa-of rdfs:label "Somebody ----s somebody of something"@en .
+wordnetframe:vtaa-pp rdfs:label "Somebody ----s somebody PP"@en .
+wordnetframe:vtaa-to-inf rdfs:label "Somebody ----s somebody to INFINITIVE"@en .
+wordnetframe:vtaa-with rdfs:label "Somebody ----s somebody with something"@en .
+wordnetframe:vtai rdfs:label "Somebody ----s something"@en .
+wordnetframe:vtai-from rdfs:label "Somebody ----s something from somebody"@en .
+wordnetframe:vtai-on rdfs:label "Somebody ----s something on somebody"@en .
+wordnetframe:vtai-pp rdfs:label "Somebody ----s something PP"@en .
+wordnetframe:vtai-to rdfs:label "Somebody ----s something to somebody"@en .
+wordnetframe:vtai-with rdfs:label "Somebody ----s something with something"@en .
+wordnetframe:vtia rdfs:label "Something ----s somebody"@en .
+wordnetframe:vtii rdfs:label "Something ----s something"@en .
+wordnetframe:vtii-adj rdfs:label "Something ----s something Adjective/Noun"@en .

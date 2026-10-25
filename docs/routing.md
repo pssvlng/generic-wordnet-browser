@@ -31,6 +31,7 @@ The resource URI identifies the lookup. A `GET` or `HEAD` request receives
 | `application/json` | `/api/en/lemma/dog` | Structured lookup document |
 | `text/turtle` | `/ttl/en/lemma/dog` | OntoLex/WordNet RDF in Turtle |
 | `application/rdf+xml` | `/rdf/en/lemma/dog` | The same RDF graph in RDF/XML |
+| `application/xml` | `/xml/en/lemma/dog` | WN-LMF 1.4 XML lookup subset |
 
 This applies equally to `lemma`, `synset`, `ili` and the `id` alias, with or
 without a language prefix. Explicit representation URLs can be requested
@@ -45,13 +46,14 @@ curl -I -H 'Accept: text/turtle' http://localhost:4200/en/lemma/dog
 curl -L -H 'Accept: application/json' http://localhost:4200/en/lemma/dog
 curl -L -H 'Accept: text/turtle' http://localhost:4200/de/ili/i46593
 curl -L -H 'Accept: application/rdf+xml' http://localhost:4200/ili/i46593
+curl -L -H 'Accept: application/xml' http://localhost:4200/en/ili/i46360
 ```
 
 No `Accept` header or `*/*` defaults to HTML. Media ranges, quality weights and
-`q=0` exclusions are respected; equal preferences use HTML, JSON, Turtle, then
-RDF/XML. Unsupported requested media types return `406 Not Acceptable`.
-`application/xml` is not an alias for RDF/XML: en-word.net uses it for a
-separate WN-LMF export, which is outside this implementation's scope.
+`q=0` exclusions are respected; equal preferences use HTML, JSON, Turtle,
+RDF/XML, then WN-LMF XML. Unsupported requested media types return `406 Not Acceptable`.
+`application/xml` selects WN-LMF; `application/rdf+xml` selects RDF/XML.
+The explicit `/xml/...` and `/rdf/...` representations enforce this distinction.
 
 Negotiation responses include `Vary: Accept` and can be cached for five minutes.
 Data responses include their media type, `Content-Location`, alternate-format
@@ -68,9 +70,54 @@ lexical entries, senses and stored semantic/lexical relation links. RDF uses
 [OntoLex-Lemon](https://www.w3.org/2016/05/ontolex/) and the
 [Global WordNet vocabulary](https://globalwordnet.github.io/schemas/wn), with
 language-tagged text and links to the ILI. Both serializations come from the
-same graph. Source versions and licences come from the installed lexicons.
-These are lookup exports, not lossless full-database or WN-LMF exports.
+same graph. Source versions and licences in JSON come from the installed lexicons.
+These are lookup exports, not full-database downloads.
 Relations link to other resources without recursively exporting them.
+
+RDF lookup exports follow [en-word.net's subset serializer](https://github.com/jmccrae/ewe/blob/main/ewe_lib/src/wordnet/rdf/writer.rs):
+canonical forms, lexical entries and senses, `skos:inScheme`, `wn:lexfile` when
+stored, definition/example blank nodes containing `rdf:value`, camelCase
+WordNet relation predicates, and accompanying `vartrans` relation nodes.
+Sense relation nodes have type `ontolex:SenseRelation`; concept relation nodes
+have no extra type. Like en-word.net's lookup exports, these omit the
+whole-lexicon metadata header. JSON retains the source metadata.
+Frame declarations include each returned lexicon's complete stored table;
+`synsem:synBehavior` links entries to the frames of their returned senses.
+Language tags and frame URIs remain scoped to the source language/lexicon.
+Older datasets without frame IDs use stable hashes of the stored labels.
+The frame-table adapter uses the pinned `wn==0.9.4` database schema; review it
+when upgrading wn. This runs only for exports and does not affect UI searches.
+
+The English `i46360` graph is checked against a saved live en-word.net response.
+After URI normalization it matches, except for one additional dog-to-pack
+relation in the installed EWN 2020. Differences between lexicon releases are
+preserved, rather than changing source facts to match another release.
+en-word.net's live ILI URL does not itself negotiate RDF: resolve its ILI via
+`/api/synset_by_ili/i46360`, then negotiate `/synset/02086723-n`.
+This application's `/en/ili/i46360` negotiates directly.
+
+WN-LMF XML uses the [1.4 schema](https://globalwordnet.github.io/schemas/),
+as does en-word.net's live `/xml/...` export. A single `LexicalResource`
+contains one `Lexicon` per returned source lexicon, with its native metadata,
+language, version and licence. Entries are deduplicated across selected
+synsets. Their forms, pronunciations, tags, selected senses, original sense
+order/ranks, examples, counts and stored relations are retained. Synsets
+include their native IDs, ILIs, definitions, member IDs, examples and stored
+relations. Sense `subcat` references resolve to lexicon-scoped frame declarations.
+Optional values are emitted only when stored; no foreign source metadata is
+invented. The selective XML adapter also uses the pinned wn 0.9.4 internals.
+
+Like en-word.net's per-lookup XML, these are **subsets**: relation targets may
+refer to senses/synsets outside the response. They are not self-contained
+wordnet installation files and therefore do not meet the full DTD's requirement
+that every relation target be declared locally. Tests validate against a saved
+official DTD, permitting only those unresolved relation targets; all other
+structure and references must validate. We retain known native sense targets
+even outside the subset, where en-word.net sometimes omits them when its
+lookup serializer cannot reconstruct the target sense ID.
+XML ETags hash the serialized XML, including data not present in the JSON
+lookup schema. XML export does not perform any remote requests or expand the
+entire lexicon, and does not change UI lookup behaviour.
 
 ## Language selection
 
@@ -191,6 +238,7 @@ With backend and frontend development servers running:
 
 ```bash
 cd backend
+python3 -m pip install -r requirements-test.txt
 python3 -m unittest discover -s tests -v
 cd ../frontend
 npx playwright install chromium
@@ -201,8 +249,9 @@ npm run test:e2e
 select another development-server origin. Routing tests use controlled API
 responses plus live English/German ILI checks against the configured local data.
 HTTP tests also verify redirects with JavaScript disabled. Backend tests cover
-quality weights, language constraints, RDF graph equivalence, source metadata,
-escaping, conditional requests and deployment prefixes.
+quality weights, language constraints, RDF graph equivalence, WN-LMF schema
+structure, native identities, multilingual grouping, forms, sense/frame links,
+source metadata, escaping, conditional requests and deployment prefixes.
 
 ## Reference investigation
 
@@ -214,5 +263,5 @@ also support `/id/…`. Its [ILI page](https://github.com/jmccrae/ewe/blob/main/
 resolves an ILI to a single English synset. We keep the ILI address to support
 multilingual results.
 
-The site's `/view/senses/…` corpus concordances, WN-LMF/full-dataset downloads
+The site's `/view/senses/…` corpus concordances, full-dataset downloads
 and editing history are separate features and are outside this change's scope.

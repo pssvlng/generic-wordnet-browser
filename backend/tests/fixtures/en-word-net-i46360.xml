@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE LexicalResource SYSTEM "http://globalwordnet.github.io/schemas/WN-LMF-1.4.dtd">
+<LexicalResource xmlns:dc="https://globalwordnet.github.io/schemas/dc/">
+  <Lexicon id="oewn" label="Open English Wordnet" language="en" email="english-wordnet@googlegroups.com" license="https://creativecommons.org/licenses/by/4.0" version="2024" url="https://github.com/globalwordnet/english-wordnet">
+    <LexicalEntry id="oewn-Canis_familiaris-n">
+      <Lemma writtenForm="Canis familiaris" partOfSpeech="n"/>
+      <Sense id="oewn-canis_familiaris__1.05.00.." synset="oewn-02086723-n"/>
+    </LexicalEntry>
+    <LexicalEntry id="oewn-dog-n">
+      <Lemma writtenForm="dog" partOfSpeech="n">
+        <Pronunciation variety="GB">dɒɡ</Pronunciation>
+        <Pronunciation variety="US">dɔɡ</Pronunciation>
+      </Lemma>
+      <Sense id="oewn-dog__1.05.00.." synset="oewn-02086723-n"/>
+    </LexicalEntry>
+    <LexicalEntry id="oewn-domestic_dog-n">
+      <Lemma writtenForm="domestic dog" partOfSpeech="n"/>
+      <Sense id="oewn-domestic_dog__1.05.00.." synset="oewn-02086723-n"/>
+    </LexicalEntry>
+    <Synset id="oewn-02086723-n" ili="i46360" members="oewn-dog-n oewn-domestic_dog-n oewn-Canis_familiaris-n" partOfSpeech="n" lexfile="noun.animal">
+      <Definition>a member of the genus Canis (probably descended from the common wolf) that has been domesticated by man since prehistoric times; occurs in many breeds</Definition>
+      <SynsetRelation relType="hypernym" target="oewn-02085998-n"/>
+      <SynsetRelation relType="hypernym" target="oewn-01320032-n"/>
+      <SynsetRelation relType="mero_part" target="oewn-02161498-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-01325095-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02087384-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02087513-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02087924-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02088026-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02089774-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02106058-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02112993-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02113458-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02113610-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02113781-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02113929-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02114152-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02114278-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02115149-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02115478-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02115987-n"/>
+      <SynsetRelation relType="hyponym" target="oewn-02116630-n"/>
+      <SynsetRelation relType="holo_member" target="oewn-02086515-n"/>
+      <Example>the dog barked all night</Example>
+    </Synset>
+  </Lexicon>
+</LexicalResource>

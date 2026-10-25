@@ -1,18 +1,19 @@
 """HTTP and RDF integration checks against the installed OMW lexicons."""
 
 import unittest
+from pathlib import Path
 from urllib.parse import quote, unquote, urlsplit, parse_qs
 from unittest.mock import patch
 
 from flask import Flask
 from rdflib import Graph, Literal, URIRef
 from rdflib.compare import isomorphic
-from rdflib.namespace import DCTERMS, RDF, RDFS
+from rdflib.namespace import RDF, RDFS, SKOS
 import passivlingo_dictionary as pld
 import wn
 
 from resource_routes import init_resources
-from wordnet_export import export_graph, ONTOLEX, WN, ILI
+from wordnet_export import export_graph, relation_predicate, ONTOLEX, WN, ILI, VARTRANS, SYNSEM
 
 
 def make_app(**config):
@@ -34,7 +35,8 @@ class NegotiationTests(unittest.TestCase):
                             ('ili', 'i46593'), ('id', '02124272-n')]:
             for language in ['', 'en/']:
                 for media, format in [('text/html', 'view'), ('application/json', 'api'),
-                                      ('text/turtle', 'ttl'), ('application/rdf+xml', 'rdf')]:
+                                      ('text/turtle', 'ttl'), ('application/rdf+xml', 'rdf'),
+                                      ('application/xml', 'xml')]:
                     with self.subTest(kind=kind, language=language, media=media):
                         response = self.client.get(f'/{language}{kind}/{value}', headers={'Accept': media})
                         self.assertEqual(response.status_code, 303)
@@ -47,6 +49,8 @@ class NegotiationTests(unittest.TestCase):
             (None, 'view'), ('*/*', 'view'), ('application/*', 'api'),
             ('application/json;q=0.9,text/html;q=0.2', 'api'),
             ('text/turtle;q=0.8,application/rdf+xml;q=1', 'rdf'),
+            ('application/xml;q=1,application/rdf+xml;q=0.5', 'xml'),
+            ('application/xml;q=0,application/rdf+xml;q=1', 'rdf'),
             ('text/html;q=0,*/*;q=0.5', 'api'),
             ('text/*;q=0.5,text/html;q=0.1', 'ttl'),
             ('text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'view'),
@@ -73,7 +77,10 @@ class NegotiationTests(unittest.TestCase):
     def test_fixed_formats_reject_unacceptable_media(self):
         for path, accept in [('/api/en/lemma/dog', 'text/html'),
                              ('/ttl/en/lemma/dog', 'text/turtle;q=0,*/*;q=1'),
-                             ('/rdf/en/lemma/dog', 'application/json')]:
+                             ('/rdf/en/lemma/dog', 'application/json'),
+                             ('/xml/en/lemma/dog', 'application/rdf+xml'),
+                             ('/rdf/en/lemma/dog', 'application/xml'),
+                             ('/xml/en/lemma/dog', 'application/xml;q=0,*/*;q=1')]:
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path, headers={'Accept': accept}).status_code, 406)
 
@@ -132,7 +139,7 @@ class RepresentationTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200, response.data)
                 self.assertEqual({item['language'] for item in response.json['synsets']}, expected)
 
-    def test_rdf_formats_describe_the_same_graph_with_labels_relations_and_ili(self):
+    def test_rdf_formats_describe_the_same_graph_with_forms_relations_and_ili(self):
         for path in ['en/lemma/dog', 'de/ili/i46593', 'ili/i46593']:
             with self.subTest(path=path):
                 turtle = self.client.get('/ttl/' + path)
@@ -146,12 +153,78 @@ class RepresentationTests(unittest.TestCase):
                     subject = URIRef(item['uri'])
                     self.assertIn((subject, RDF.type, ONTOLEX.LexicalConcept), graph)
                     self.assertIn((subject, WN.ili, ILI[item['ili']]), graph)
-                    self.assertIn((subject, RDFS.label, Literal(item['lemmas'][0], lang=item['language'])), graph)
-                    self.assertIn((URIRef(item['lexicon']['uri']), DCTERMS.license,
-                                   URIRef(item['lexicon']['license'])), graph)
+                    self.assertIn((subject, SKOS.inScheme, URIRef(item['lexicon']['uri'])), graph)
+                    for entry in item['entries']:
+                        form = graph.value(URIRef(entry['uri']), ONTOLEX.canonicalForm)
+                        self.assertIn((form, ONTOLEX.writtenRep,
+                                       Literal(entry['lemma'], lang=item['language'])), graph)
                     for relation, targets in item['relations'].items():
                         for target in targets:
-                            self.assertIn((subject, WN[relation], URIRef(target['uri'])), graph)
+                            self.assertIn((subject, relation_predicate(relation), URIRef(target['uri'])), graph)
+                            nodes = set(graph.subjects(VARTRANS.source, subject)) & set(
+                                graph.subjects(VARTRANS.target, URIRef(target['uri']))) & set(
+                                graph.subjects(VARTRANS.category, relation_predicate(relation)))
+                            self.assertEqual(len(nodes), 1)
+                            self.assertIsNone(graph.value(next(iter(nodes)), RDF.type))
+
+    def test_english_dog_graph_matches_en_word_net_apart_from_uris_and_known_data_difference(self):
+        if not any(lex.id == 'ewn' and lex.version == '2020' for lex in wn.lexicons()):
+            self.skipTest('Comparison fixture targets the installed EWN 2020 dataset')
+        reference = Graph().parse(Path(__file__).parent / 'fixtures' / 'en-word-net-i46360.ttl')
+        document = self.client.get('/api/en/ili/i46360').json
+        local = Graph().parse(data=self.client.get('/ttl/en/ili/i46360').data, format='turtle')
+        item, = document['synsets']
+        site = 'https://en-word.net/'
+        remap = {URIRef(item['lexicon']['uri']): URIRef(site)}
+        for entry in item['entries']:
+            reference_entry = URIRef(site + 'lemma/' + entry['lemma'].replace(' ', '_') + '-n')
+            remap[URIRef(entry['uri'])] = reference_entry
+            remap[local.value(URIRef(entry['uri']), ONTOLEX.canonicalForm)] = reference.value(
+                reference_entry, ONTOLEX.canonicalForm)
+            for sense in entry['senses']:
+                remap[URIRef(sense['uri'])] = URIRef(str(reference_entry) + '#02086723-n')
+        for frame in document['frames']:
+            remap[URIRef(frame['uri'])] = reference.value(
+                predicate=RDFS.label, object=Literal(frame['label'], lang='en'), any=False)
+
+        def normalize(term):
+            if term in remap:
+                return remap[term]
+            if isinstance(term, URIRef) and str(term).startswith('https://wordnet.example/en/synset/ewn-'):
+                return URIRef(str(term).replace('https://wordnet.example/en/synset/ewn-', site + 'synset/'))
+            return term
+
+        normalized = Graph()
+        for triple in local:
+            normalized.add(tuple(normalize(term) for term in triple))
+        # EWN 2020 also puts a dog in a pack. Preserve this stored relation in
+        # exports; remove its direct + reified triples only for this comparison.
+        dog = URIRef(site + 'synset/02086723-n')
+        pack = URIRef(site + 'synset/08011383-n')
+        self.assertIn((dog, WN.holoMember, pack), normalized)
+        normalized.remove((dog, WN.holoMember, pack))
+        nodes = list(normalized.subjects(VARTRANS.target, pack))
+        self.assertEqual(len(nodes), 1)
+        for node in nodes:
+            normalized.remove((node, None, None))
+        self.assertEqual(len(local), len(reference) + 4)
+        self.assertTrue(isomorphic(normalized, reference))
+
+    def test_verb_frame_links_resolve_to_stored_labels_and_survive_both_serializations(self):
+        document = self.client.get('/api/en/lemma/run').json
+        graph = export_graph(document)
+        expected = set()
+        for item in document['synsets']:
+            for entry in item['entries']:
+                for sense in entry['senses']:
+                    expected.update((URIRef(entry['uri']), Literal(label, lang='en'))
+                                    for label in wn.sense(sense['id']).frames())
+        actual = {(entry, label) for entry, _, frame in graph.triples((None, SYNSEM.synBehavior, None))
+                  for label in graph.objects(frame, RDFS.label)}
+        self.assertTrue(expected)
+        self.assertEqual(actual, expected)
+        for format in ['turtle', 'xml']:
+            self.assertTrue(isomorphic(graph, Graph().parse(data=graph.serialize(format=format), format=format)))
 
     def test_serializer_escapes_rdf_literals_and_preserves_sense_relations(self):
         document = self.client.get('/api/en/lemma/hot').json
@@ -160,6 +233,16 @@ class RepresentationTests(unittest.TestCase):
         expected = export_graph(document)
         self.assertTrue(any(sense['relations'] for item in document['synsets']
                             for entry in item['entries'] for sense in entry['senses']))
+        for item in document['synsets']:
+            for entry in item['entries']:
+                for sense in entry['senses']:
+                    for relation, targets in sense['relations'].items():
+                        for target in targets:
+                            nodes = set(expected.subjects(VARTRANS.source, URIRef(sense['uri']))) & set(
+                                expected.subjects(VARTRANS.target, URIRef(target['uri']))) & set(
+                                expected.subjects(VARTRANS.category, relation_predicate(relation)))
+                            self.assertEqual(len(nodes), 1)
+                            self.assertIn((next(iter(nodes)), RDF.type, ONTOLEX.SenseRelation), expected)
         for format in ['turtle', 'xml']:
             with self.subTest(format=format):
                 graph = Graph().parse(data=expected.serialize(format=format), format=format)
@@ -168,7 +251,7 @@ class RepresentationTests(unittest.TestCase):
 
     def test_http_head_etag_and_conditional_requests(self):
         tags = []
-        for format in ['api', 'ttl', 'rdf']:
+        for format in ['api', 'ttl', 'rdf', 'xml']:
             path = f'/{format}/en/ili/i46593'
             response = self.client.get(path)
             tag = response.headers['ETag']
@@ -185,7 +268,7 @@ class RepresentationTests(unittest.TestCase):
             self.assertEqual(cached.status_code, 304)
             self.assertEqual(cached.data, b'')
             self.assertEqual(cached.headers['ETag'], tag)
-        self.assertEqual(len(set(tags)), 3)
+        self.assertEqual(len(set(tags)), 4)
         self.assertNotEqual(self.client.get('/api/de/ili/i46593').headers['ETag'], tags[0])
         head = self.client.head('/en/lemma/dog', headers={'Accept': 'text/html'})
         self.assertEqual(head.status_code, 303)
@@ -226,7 +309,7 @@ class RepresentationTests(unittest.TestCase):
                     self.assertEqual(set(graph.subjects(RDF.type, ONTOLEX.LexicalConcept)), {subject})
 
     def test_conflicting_synset_language_returns_404_in_every_data_format(self):
-        for format in ['api', 'ttl', 'rdf']:
+        for format in ['api', 'ttl', 'rdf', 'xml']:
             for suffix in ['de/synset/ewn-02086723-n', 'de/id/ewn-02086723-n',
                            'synset/ewn-02086723-n?langs=de',
                            'de/synset/ewn-02086723-n?relation=hypernym']:

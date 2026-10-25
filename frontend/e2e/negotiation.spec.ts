@@ -4,6 +4,7 @@ test('the frontend origin negotiates resources before the SPA loads', async ({ r
   for (const [accept, format] of [
     ['text/html', 'view'], ['application/json', 'api'],
     ['text/turtle', 'ttl'], ['application/rdf+xml', 'rdf'],
+    ['application/xml', 'xml'],
   ]) {
     const response = await request.get('/en/lemma/dog', {
       headers: { Accept: accept }, maxRedirects: 0,
@@ -18,6 +19,31 @@ test('the frontend origin negotiates resources before the SPA loads', async ({ r
       expect(await data.text()).not.toContain('<app-root');
     }
   }
+});
+
+test('WN-LMF XML is served through the proxy with language filters and caching', async ({ request, page }) => {
+  const response = await request.get('/en/ili/i46360', { headers: { Accept: 'application/xml' } });
+  expect(response.status()).toBe(200);
+  expect(new URL(response.url()).pathname).toBe('/xml/en/ili/i46360');
+  expect(response.headers()['content-type']).toContain('application/xml');
+  const data = await response.text();
+  expect(data).toContain('WN-LMF-1.4.dtd');
+  const parsed = await page.evaluate(xml => {
+    const document = new DOMParser().parseFromString(xml, 'application/xml');
+    return {
+      errors: document.querySelectorAll('parsererror').length,
+      root: document.documentElement.tagName,
+      languages: Array.from(document.querySelectorAll('Lexicon')).map(lex => lex.getAttribute('language')),
+      ilis: Array.from(document.querySelectorAll('Synset')).map(synset => synset.getAttribute('ili')),
+    };
+  }, data);
+  expect(parsed).toEqual({ errors: 0, root: 'LexicalResource', languages: ['en'], ilis: ['i46360'] });
+  const cached = await request.get('/xml/en/ili/i46360', {
+    headers: { Accept: 'application/xml', 'If-None-Match': response.headers()['etag'] },
+  });
+  expect(cached.status()).toBe(304);
+  const conflict = await request.get('/xml/de/synset/ewn-02086723-n');
+  expect(conflict.status()).toBe(404);
 });
 
 test('HTML redirects work with JavaScript disabled', async ({ browser, baseURL }) => {

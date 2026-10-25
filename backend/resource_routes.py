@@ -11,13 +11,14 @@ import passivlingo_dictionary as pld
 import wn
 from werkzeug.routing import BaseConverter
 
-from wordnet_export import export_document, export_graph
+from wordnet_export import RDF_PROFILE_VERSION, export_document, export_graph
+from wordnet_lmf import export_lmf
 from wordnet_service import DEFAULT_LANGUAGES, RELATIONS, WordnetService
 
 
 resources = Blueprint('resources', __name__)
 FORMATS = {'view': 'text/html', 'api': 'application/json',
-           'ttl': 'text/turtle', 'rdf': 'application/rdf+xml'}
+           'ttl': 'text/turtle', 'rdf': 'application/rdf+xml', 'xml': 'application/xml'}
 KINDS = ('lemma', 'synset', 'ili', 'id')
 
 
@@ -109,16 +110,23 @@ def representation(format, kind, value, lang=None):
         synsets = service.lookup_synsets(kind, value, lang, request.args.get('relation'))
         if not synsets:
             return _error('No matching concepts in the selected languages', 404)
-        base = current_app.config['WORDNET_PUBLIC_URL'] or (
-            request.host_url.rstrip('/') + current_app.config['WORDNET_URL_PREFIX'])
-        document = export_document(synsets, base=base, kind=kind, value=value,
-                                   languages=languages, relation=request.args.get('relation'))
-        canonical = json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')
-        # RDF serializations can reorder triples without changing meaning.
-        # A weak validator over the common document remains stable for both.
-        etag = hashlib.sha256(format.encode() + b'\0' + canonical).hexdigest()
-        body = canonical if format == 'api' else export_graph(document).serialize(
-            format='turtle' if format == 'ttl' else 'xml', encoding='utf-8')
+        if format == 'xml':
+            body = export_lmf(synsets)
+            # Hash the actual XML, including metadata/forms outside the JSON
+            # lookup schema, so source or serializer changes invalidate caches.
+            etag = hashlib.sha256(b'xml\0' + body).hexdigest()
+        else:
+            base = current_app.config['WORDNET_PUBLIC_URL'] or (
+                request.host_url.rstrip('/') + current_app.config['WORDNET_URL_PREFIX'])
+            document = export_document(synsets, base=base, kind=kind, value=value,
+                                       languages=languages, relation=request.args.get('relation'))
+            canonical = json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')
+            # RDF serializations can reorder triples without changing meaning.
+            # A weak validator over the common document remains stable for both.
+            profile = '' if format == 'api' else RDF_PROFILE_VERSION
+            etag = hashlib.sha256(f'{format}:{profile}\0'.encode() + canonical).hexdigest()
+            body = canonical if format == 'api' else export_graph(document).serialize(
+                format='turtle' if format == 'ttl' else 'xml', encoding='utf-8')
         response = Response(body, content_type=media + '; charset=utf-8')
         response.set_etag(etag, weak=True)
         response.headers['Cache-Control'] = 'public, max-age=0, must-revalidate'
@@ -146,6 +154,6 @@ for kind in KINDS:
         suffix = f'{kind}_{with_language}'
         resources.add_url_rule(f'/{language}{kind}/<path:value>', f'resource_{suffix}',
                                negotiated, defaults={'kind': kind})
-        for format in ('api', 'ttl', 'rdf'):
+        for format in ('api', 'ttl', 'rdf', 'xml'):
             resources.add_url_rule(f'/{format}/{language}{kind}/<path:value>', f'{format}_{suffix}',
                                    representation, defaults={'format': format, 'kind': kind})
